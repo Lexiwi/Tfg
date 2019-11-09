@@ -47,6 +47,8 @@ typedef struct _PcapDrop{
 
 } PcapDrop;
 
+char * conseguir_dev();
+bpf_u_int32 conseguir_direccion_red();
 pcap_t * abrir_captura_online();
 pcap_t * abrir_captura_offline(char* filename);
 void obtener_trafico_entrante(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);

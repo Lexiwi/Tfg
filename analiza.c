@@ -1,11 +1,10 @@
 #include "analiza.h"
 
-pcap_t * abrir_captura_online() {
+char * conseguir_dev() {
 
     char *dev;
-    char errbuff[PCAP_ERRBUF_SIZE]; /* String de mensaje de error*/
-    pcap_t *handle = NULL;          /* Sesion*/
     bpf_u_int32 mascara_subred, ip;
+    char errbuff[PCAP_ERRBUF_SIZE]; /* String de mensaje de error*/
 
     /* Define un device por defecto */
     dev = pcap_lookupdev(errbuff);
@@ -18,7 +17,56 @@ pcap_t * abrir_captura_online() {
         fprintf(stderr, "Couldn't get netmask for device %s: %s\n", dev, errbuff);
         ip = 0;
         mascara_subred = 0;
+        return NULL;
     }
+
+    return dev;
+}
+
+bpf_u_int32 conseguir_direccion_red() {
+
+    char *dev;
+    bpf_u_int32 mascara_subred, ip;
+    char errbuff[PCAP_ERRBUF_SIZE]; /* String de mensaje de error*/
+
+    /* Define un device por defecto */
+    dev = pcap_lookupdev(errbuff);
+    if (dev == NULL) {
+        fprintf(stderr, "Couldn't find default device: %s\n", errbuff);
+        return NULL;
+    }
+    /* Find the properties for the device */
+    if (pcap_lookupnet(dev, &ip, &mascara_subred, errbuff) == -1) {
+        fprintf(stderr, "Couldn't get netmask for device %s: %s\n", dev, errbuff);
+        ip = 0;
+        mascara_subred = 0;
+        return NULL;
+    }
+
+    return ip;
+}
+
+pcap_t * abrir_captura_online() {
+
+    char *dev;
+    char errbuff[PCAP_ERRBUF_SIZE]; /* String de mensaje de error*/
+    pcap_t *handle = NULL;          /* Sesion*/
+    //bpf_u_int32 mascara_subred, ip;
+
+    ///* Define un device por defecto */
+    //dev = pcap_lookupdev(errbuff);
+    //if (dev == NULL) {
+    //    fprintf(stderr, "Couldn't find default device: %s\n", errbuff);
+    //    return NULL;
+    //}
+    ///* Find the properties for the device */
+    //if (pcap_lookupnet(dev, &ip, &mascara_subred, errbuff) == -1) {
+    //    fprintf(stderr, "Couldn't get netmask for device %s: %s\n", dev, errbuff);
+    //    ip = 0;
+    //    mascara_subred = 0;
+    //}
+
+    dev = conseguir_dev();
 
     handle = (pcap_t*)malloc(sizeof(handle));
     if (handle == NULL) {
@@ -41,20 +89,20 @@ pcap_t * abrir_captura_offline(char* filename) {
     char *dev;
     char errbuff[PCAP_ERRBUF_SIZE]; /* String de mensaje de error*/
     pcap_t *handle = NULL;          /* Sesion*/
-    bpf_u_int32 mascara_subred, ip;
+    //bpf_u_int32 mascara_subred, ip;
 
-    /* Define un device por defecto */
-    dev = pcap_lookupdev(errbuff);
-    if (dev == NULL) {
-        fprintf(stderr, "Couldn't find default device: %s\n", errbuff);
-        return NULL;
-    }
-    /* Find the properties for the device */
-    if (pcap_lookupnet(dev, &ip, &mascara_subred, errbuff) == -1) {
-        fprintf(stderr, "Couldn't get netmask for device %s: %s\n", dev, errbuff);
-        ip = 0;
-        mascara_subred = 0;
-    }
+    ///* Define un device por defecto */
+    //dev = pcap_lookupdev(errbuff);
+    //if (dev == NULL) {
+    //    fprintf(stderr, "Couldn't find default device: %s\n", errbuff);
+    //    return NULL;
+    //}
+    ///* Find the properties for the device */
+    //if (pcap_lookupnet(dev, &ip, &mascara_subred, errbuff) == -1) {
+    //    fprintf(stderr, "Couldn't get netmask for device %s: %s\n", dev, errbuff);
+    //    ip = 0;
+    //    mascara_subred = 0;
+    //}
 
     handle = (pcap_t *)malloc(sizeof(handle));
     if (handle == NULL) {
@@ -132,7 +180,7 @@ void analiza_trafico(u_char *args, const struct pcap_pkthdr *header, const u_cha
     int rtp_header_length;
     
 
-    u_char *protocolo;
+    u_char protocolo;
 
     /* Nos aseguramos que sea un paquete IP */
     eth_header = (struct ether_header *) packet;
@@ -150,10 +198,10 @@ void analiza_trafico(u_char *args, const struct pcap_pkthdr *header, const u_cha
     //printf("IP header length (IHL) in bytes: %d\n", ip_header_length);
 
     /* Vamos que protocolo se esta utilizando*/
-    protocolo = *(ip_header + 9);
+    protocolo = (u_char)*(ip_header + 9);
     if (protocolo == IPPROTO_IGMP) {
         // Cosa para IGMP
-        ip = (struct sniff_ip*)(packet + ethernet_header_length);
+        ip = (struct sniff_ip*)(packet + LEN_ETH);
         printf("%s - ", inet_ntoa(ip->ip_src));
         printf("%s\n", inet_ntoa(ip->ip_dst));
     } 
@@ -163,8 +211,6 @@ void analiza_trafico(u_char *args, const struct pcap_pkthdr *header, const u_cha
     else {
         // Fuera
     }
-
-
 
 
 }

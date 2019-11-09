@@ -117,6 +117,8 @@ int main(int argc, char *argv[]) {
     //char filename[LEN_NAME];      // Nombre de los ficheros
     int opt = -1;                   // Variable para argumentos
     PcapDrop *pd = NULL;            // Estructura para provocar perdidas
+    //bpf_u_int32 ip;
+    //struct bpf_program fp;          // Mantiene la compilación del programa
     
 
     while( (opt = getopt(argc, argv, ":OF:lsm:") ) != -1) {
@@ -187,6 +189,14 @@ int main(int argc, char *argv[]) {
             break;
 
         case 3:
+
+            //ip = conseguir_direccion_red():
+            //if (pcap_compile(handle,&fp,/*filtro*/,0,ip) == −1) {
+            //    fprintf(stderr,"Error compilando el filtro\n"); exit(1);}
+            //if (pcap_setfilter(descr,&fp) == −1) //aplicamos el filtro
+            //{fprintf(stderr,"Error aplicando el filtro\n"); exit(1);}
+
+
             signal(SIGINT, finaliza_monitorizacion);
             pcap_loop(handle, 0, provoca_perdidas, (u_char*)pd);
             break;
