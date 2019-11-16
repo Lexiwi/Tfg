@@ -15,7 +15,7 @@ all : $(EXE) objclean
 
 .PHONY : clean
 clean :
-	rm -f *.o core $(EXE)
+	rm -f *.o *.txt core $(EXE)
 
 objclean:
 	@rm *.o

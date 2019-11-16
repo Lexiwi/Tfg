@@ -117,11 +117,11 @@ int main(int argc, char *argv[]) {
     //char filename[LEN_NAME];      // Nombre de los ficheros
     int opt = -1;                   // Variable para argumentos
     PcapDrop *pd = NULL;            // Estructura para provocar perdidas
-    //bpf_u_int32 ip;
-    //struct bpf_program fp;          // Mantiene la compilación del programa
+    bpf_u_int32 ip;
+    struct bpf_program fp;          // Mantiene la compilación del programa
     
 
-    while( (opt = getopt(argc, argv, ":OF:lsm:") ) != -1) {
+    while( (opt = getopt(argc, argv, ":OF:lsm::") ) != -1) {
         switch(opt) {
             case 'O':
                 // Abrimos captura en vivo/ Liberar memoria de handle
@@ -172,7 +172,7 @@ int main(int argc, char *argv[]) {
                 break;
 
             default:
-                fprintf(stdout, "Error al introducir parametros: ./TFG O|F <filename> l <porcentaje>|s|m");
+                fprintf(stdout, "Error al introducir parametros: ./TFG O|F <filename> l <porcentaje>|s|m\n");
                 return -1;
         }
     }
@@ -184,19 +184,30 @@ int main(int argc, char *argv[]) {
             break;
         
         case 2:
+
+            //////////////////////////////////////////////////////////
+            ip = conseguir_direccion_red();
+            if (pcap_compile(handle,&fp,FILTER_IGMP,0,ip) == -1) {
+                fprintf(stderr,"Error compilando el filtro: %s\n", pcap_geterr(handle));
+                pcap_close(handle);
+                free(handle);
+                return -1;
+            }
+            // Aplicamos el filtro
+            if (pcap_setfilter(handle,&fp) == -1) {
+                fprintf(stderr,"Error aplicando el filtro\n");
+                pcap_close(handle);
+                free(handle);
+                return -1;
+            }
+            pcap_freecode(&fp);
+            ////////////////////////////////////////////////////
             signal(SIGINT, finaliza_monitorizacion);
-            pcap_loop(handle, 0, analiza_trafico, NULL);
+            pcap_loop(handle, 0, obtener_igmp, NULL);
+            system(COMMAND);
             break;
 
         case 3:
-
-            //ip = conseguir_direccion_red():
-            //if (pcap_compile(handle,&fp,/*filtro*/,0,ip) == −1) {
-            //    fprintf(stderr,"Error compilando el filtro\n"); exit(1);}
-            //if (pcap_setfilter(descr,&fp) == −1) //aplicamos el filtro
-            //{fprintf(stderr,"Error aplicando el filtro\n"); exit(1);}
-
-
             signal(SIGINT, finaliza_monitorizacion);
             pcap_loop(handle, 0, provoca_perdidas, (u_char*)pd);
             break;
@@ -209,6 +220,7 @@ int main(int argc, char *argv[]) {
         pcap_dump_close(pd->dumpfile);
         free(pd);
     }
+    //pcap_freecode(fp)
     pcap_close(handle);
     free(handle);
     return 0;

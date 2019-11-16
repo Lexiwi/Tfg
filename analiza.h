@@ -22,6 +22,9 @@
 #define LEN_DEV 10
 #define LEN_ETH 14
 #define DROP_FILE_NAME "file_drop"
+#define FILTER_IGMP "igmp"
+#define IGMP_FILE "igmp_file.txt"
+#define COMMAND "sort igmp_file.txt | uniq > igmp.txt"
 
 struct sniff_ip {
     u_char ip_vhl;		/* version << 4 | header length >> 2 */
@@ -53,6 +56,6 @@ pcap_t * abrir_captura_online();
 pcap_t * abrir_captura_offline(char* filename);
 void obtener_trafico_entrante(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 void provoca_perdidas(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
-void analiza_trafico(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
+void obtener_igmp(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 
 #endif
