@@ -11,6 +11,7 @@
 #include <getopt.h>
 #include <arpa/inet.h>
 #include <signal.h>
+#include <time.h>
 /* constantes */
 
 /*#ifndef ERR
@@ -23,8 +24,10 @@
 #define LEN_ETH 14
 #define DROP_FILE_NAME "file_drop"
 #define FILTER_IGMP "igmp"
-#define IGMP_FILE "igmp_file.txt"
-#define COMMAND "sort igmp_file.txt | uniq > igmp.txt"
+#define FILTER_RTP "udp and dst"
+#define IGMP_FIELDS "igmp_fields.txt"
+#define IGMP_IPS "igmp_ips.txt"
+#define COMMAND "cut -d ' ' -f1-2 igmp_fields.txt | sort | uniq > igmp_ips.txt "
 
 struct sniff_ip {
     u_char ip_vhl;		/* version << 4 | header length >> 2 */

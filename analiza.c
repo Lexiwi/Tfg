@@ -75,7 +75,6 @@ pcap_t * abrir_captura_online() {
 
 pcap_t * abrir_captura_offline(char* filename) {
 
-    char *dev;
     char errbuff[PCAP_ERRBUF_SIZE]; /* String de mensaje de error*/
     pcap_t *handle = NULL;          /* Sesion*/
   
@@ -148,7 +147,6 @@ void obtener_igmp(u_char *args, const struct pcap_pkthdr *header, const u_char *
 
     int ip_header_length;
 
-    //char cliente[33];
     FILE *fp = NULL;
 
     /* Nos aseguramos que sea un paquete IP */
@@ -174,21 +172,17 @@ void obtener_igmp(u_char *args, const struct pcap_pkthdr *header, const u_char *
 
     igmp_header = packet + LEN_ETH + ip_header_length;
     if( ((*igmp_header) & 0xFF) == 0x16 ) {
-        fp = fopen(IGMP_FILE, "a");
+        fp = fopen(IGMP_FIELDS, "a");
         if (fp == NULL){
-            printf("Error al abrir el fichero %s. Saltando...\n\n", IGMP_FILE);
+            printf("Error al abrir el fichero %s. Saltando...\n\n", IGMP_FIELDS);
             return;
         }
         /* Igualamos la estructura con el inicio de la cabecera IP y obtenemos 
         * la direccion IP origen y destino*/
         ip = (struct sniff_ip*)(packet + LEN_ETH);
-        //memset(cliente,'\0', strlen(cliente));
-        //sprintf(cliente, "%s", inet_ntoa(ip->ip_src));
-        //sprintf(cliente, "%s %s\n", cliente, inet_ntoa(ip->ip_dst));
-        //printf("Cadena: %s\n", cliente);
-        //fwrite(cliente, 1, sizeof(cliente), fp);
         fprintf(fp, "%s", inet_ntoa(ip->ip_src));
-        fprintf(fp, " %s\n", inet_ntoa(ip->ip_dst));
+        fprintf(fp, " %s", inet_ntoa(ip->ip_dst));
+        fprintf(fp, " %ld\n", ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec)));
         fclose(fp);
     }
     return;

@@ -114,11 +114,16 @@ int main(int argc, char *argv[]) {
 
     //int fHandle = -1;             // 1 - Online | 2 - Fichero
     int accion = -1;                // 1 - Monitoriza | 2 - Calcula QoS | 3 - Genera perdidas
-    //char filename[LEN_NAME];      // Nombre de los ficheros
     int opt = -1;                   // Variable para argumentos
     PcapDrop *pd = NULL;            // Estructura para provocar perdidas
     bpf_u_int32 ip;
     struct bpf_program fp;          // Mantiene la compilación del programa
+
+    FILE *f = NULL;
+    char *line = NULL;
+    char *token = NULL;
+    char filter[28];
+    size_t len = 0;
     
 
     while( (opt = getopt(argc, argv, ":OF:lsm::") ) != -1) {
@@ -185,7 +190,7 @@ int main(int argc, char *argv[]) {
         
         case 2:
 
-            //////////////////////////////////////////////////////////
+            ////////////////////////IGMP//////////////////////////////
             ip = conseguir_direccion_red();
             if (pcap_compile(handle,&fp,FILTER_IGMP,0,ip) == -1) {
                 fprintf(stderr,"Error compilando el filtro: %s\n", pcap_geterr(handle));
@@ -205,6 +210,43 @@ int main(int argc, char *argv[]) {
             signal(SIGINT, finaliza_monitorizacion);
             pcap_loop(handle, 0, obtener_igmp, NULL);
             system(COMMAND);
+            /////////////////////RTP/////////////////////
+            f = fopen(IGMP_IPS, "r");
+            if (f == NULL){
+                printf("Error al abrir el fichero %s.\n", IGMP_IPS);
+                pcap_close(handle);
+                free(handle);
+                return -1;
+            }
+
+            while (getline(&line, &len, f) != -1) {
+                
+                token = strtok(line, " ");
+                token = strtok(NULL, " ");
+
+                sprintf(filter, "%s %s", FILTER_RTP, token);
+                printf("%s\n", filter);
+                //if (pcap_compile(handle,&fp,filter,0,ip) == -1) {
+                //    fprintf(stderr,"Error compilando el filtro: %s\n", pcap_geterr(handle));
+                //    pcap_close(handle);
+                //    fclose(f);
+                //    free(handle);
+                //    return -1;
+                //}
+                //// Aplicamos el filtro
+                //if (pcap_setfilter(handle,&fp) == -1) {
+                //    fprintf(stderr,"Error aplicando el filtro\n");
+                //    pcap_close(handle);
+                //    fclose(f);
+                //    free(handle);
+                //    return -1;
+                //}
+                //pcap_freecode(&fp);
+                line = NULL;
+                /// Funcion loop para mirar paquetes RTP
+            }
+            fclose(f);
+            /////////////////////////////////////////////
             break;
 
         case 3:
