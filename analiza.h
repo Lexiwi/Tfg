@@ -22,6 +22,7 @@
 #define LEN_NAME 256
 #define LEN_DEV 10
 #define LEN_ETH 14
+#define LEN_UDP 8
 #define DROP_FILE_NAME "file_drop"
 #define FILTER_IGMP "igmp"
 #define FILTER_RTP "udp and dst"
@@ -60,5 +61,6 @@ pcap_t * abrir_captura_offline(char* filename);
 void obtener_trafico_entrante(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 void provoca_perdidas(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 void obtener_igmp(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
+void obtener_rtp(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 
 #endif

@@ -146,6 +146,7 @@ void obtener_igmp(u_char *args, const struct pcap_pkthdr *header, const u_char *
     u_char protocolo;
 
     int ip_header_length;
+    
 
     FILE *fp = NULL;
 
@@ -185,5 +186,49 @@ void obtener_igmp(u_char *args, const struct pcap_pkthdr *header, const u_char *
         fprintf(fp, " %ld\n", ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec)));
         fclose(fp);
     }
+    return;
+}
+
+void obtener_rtp(u_char *args, const struct pcap_pkthdr *header, const u_char *packet) {
+
+    struct ether_header *eth_header;
+    //const struct sniff_ip *ip;          /* Cabecera IP */
+    const u_char *ip_header;
+    const u_char *rtp_header;
+    u_char protocolo;
+
+    int ip_header_length;
+    uint16_t numSeq;
+    unsigned int raw_offset = 2;
+
+    //FILE *fp = NULL;
+
+    /* Nos aseguramos que sea un paquete IP */
+    eth_header = (struct ether_header *) packet;
+    if (ntohs(eth_header->ether_type) != ETHERTYPE_IP) {
+        printf("No es un paquete IP. Saltando...\n\n");
+        return;
+    }    
+
+    /* Nos colocamos al principio de la cabecera IP */
+    ip_header = packet + LEN_ETH;
+    /* Obtenemos el campo IHL para averiguar el tamanio de la cabecera IP */
+    ip_header_length = ((*ip_header) & 0x0F);
+    /* El campo IHL es un segmento de 32 bits. Multiplicamos por 4 para obtener un puntero aritmetico*/
+    ip_header_length = ip_header_length * 4;
+
+    /* Vamos que protocolo se esta utilizando*/
+    protocolo = (u_char)*(ip_header + 9);
+    if (protocolo != IPPROTO_UDP) {
+        printf("No es un paquete UDP. Saltando...\n\n");
+        return;
+    } 
+
+    rtp_header = packet + LEN_ETH + ip_header_length + LEN_UDP;
+    numSeq = rtp_header[raw_offset] * 256 + rtp_header[raw_offset + 1];
+    printf("%d\n", numSeq);
+    //fprintf(stdout, "%.3ld\n" ,header->ts.tv_usec);
+    
+    
     return;
 }
