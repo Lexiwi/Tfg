@@ -95,32 +95,27 @@ int main(int argc, char *argv[]) {
             if (pcap_compile(handle,&fp,FILTER_IGMP,0,ip) == -1) {
                 fprintf(stderr,"Error compilando el filtro: %s\n", pcap_geterr(handle));
                 pcap_close(handle);
-                free(handle);
                 return -1;
             }
             // Aplicamos el filtro
             if (pcap_setfilter(handle,&fp) == -1) {
                 fprintf(stderr,"Error aplicando el filtro\n");
                 pcap_close(handle);
-                free(handle);
                 return -1;
             }
             pcap_freecode(&fp);
             ////////////////////////////////////////////////////
-            if(pcap_dispatch(handle, 0, obtener_igmp, NULL) < 0) {
-                    //printf("Error\n");
-            }
+            pcap_loop(handle, 0, obtener_igmp, NULL);
             system(COMMAND);
             /////////////////////RTP/////////////////////
             f = fopen(IGMP_IPS, "r");
             if (f == NULL){
                 printf("Error al abrir el fichero %s.\n", IGMP_IPS);
                 pcap_close(handle);
-                free(handle);
                 return -1;
             }
 
-            while (getline(&line, &len, f) != -1) {  // Fuga de memoria
+            while (getline(&line, &len, f) != -1) {
             
                 token = strtok(line, " ");
                 token = strtok(NULL, " ");
@@ -128,7 +123,6 @@ int main(int argc, char *argv[]) {
                 sprintf(filter, "%s %s", FILTER_RTP, token);
                 /////////////////////////////
                 pcap_close(handle);
-                free(handle);
                 handle = abrir_captura_offline(filename); //Fuga de memoria
                 if(handle == NULL){
                     return -1;
@@ -138,7 +132,6 @@ int main(int argc, char *argv[]) {
                     fprintf(stderr,"Error compilando el filtro: %s\n", pcap_geterr(handle));
                     pcap_close(handle);
                     fclose(f);
-                    free(handle);
                     return -1;
                 }
                 // Aplicamos el filtro
@@ -146,13 +139,10 @@ int main(int argc, char *argv[]) {
                     fprintf(stderr,"Error aplicando el filtro\n");
                     pcap_close(handle);
                     fclose(f);
-                    free(handle);
                     return -1;
                 }
-                pcap_dispatch(handle, 0, obtener_rtp, NULL);
-                //if(pcap_dispatch(handle, 0, obtener_rtp, NULL) < 0) {
-                //    printf("Error\n");
-                //}
+                printf("%s\n", filter);
+                pcap_loop(handle, 0, obtener_rtp, NULL);
                 pcap_freecode(&fp);
                 free(line);
                 line = NULL;
@@ -180,6 +170,5 @@ int main(int argc, char *argv[]) {
         free(pd);
     }
     pcap_close(handle);
-    free(handle);
     return 0;
 }

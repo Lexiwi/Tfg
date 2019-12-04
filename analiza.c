@@ -57,16 +57,15 @@ pcap_t * abrir_captura_online() {
         fprintf(stdout, "Error al obtener una interfaz de captura\n");
     }
 
-    handle = (pcap_t*)malloc(sizeof(handle));
+    /*handle = (pcap_t*)malloc(sizeof(handle));
     if (handle == NULL) {
         fprintf(stdout, "Error al reservar memoria para handle en live\n");
         return NULL;
-    }
+    }*/
 
     handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuff);
     if(handle == NULL) {
         fprintf(stdout, "Error al obtener el manejador en captura en vivo: %s\n", errbuff);
-        free(handle);
         return NULL;
     }
 
@@ -78,16 +77,15 @@ pcap_t * abrir_captura_offline(char* filename) {
     char errbuff[PCAP_ERRBUF_SIZE]; /* String de mensaje de error*/
     pcap_t *handle = NULL;          /* Sesion*/
   
-    handle = (pcap_t *)malloc(sizeof(handle));
+    /*handle = (pcap_t *)malloc(sizeof(pcap_t));
     if (handle == NULL) {
         fprintf(stdout, "Error al reservar memoria para handle en offline\n");
         return NULL;
-    }
+    }*/
 
     handle = pcap_open_offline(filename, errbuff);
     if(handle == NULL) {
         fprintf(stdout, "Error al obtener el manejador en captura en vivo: %s\n", errbuff);
-        free(handle);
         return NULL;
     }
 

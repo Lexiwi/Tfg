@@ -34,12 +34,21 @@ analiza.o : analiza.c analiza.h
 	@echo "# Ha cambiado $<"
 	$(CC) $(CFLAGS) -c $< $(FPCAP)
 
+hash.o : hash.c hash.h
+	@echo "#---------------------------"
+	@echo "# Generando $@"
+	@echo "# Depende de $^"
+	@echo "# Ha cambiado $<"
+	$(CC) $(CFLAGS) -c $<
+
 main.o : main.c
 	@echo "#---------------------------"
 	@echo "# Generando $@"
 	@echo "# Depende de $^"
 	@echo "# Ha cambiado $<"
 	$(CC) $(CFLAGS) -c $<
+
+
 
 ##ordenacion.o : ordenacion.c ordenacion.h
 ##	@echo "#---------------------------"
