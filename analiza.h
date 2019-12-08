@@ -12,6 +12,7 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <time.h>
+#include "hash.h"
 /* constantes */
 
 /*#ifndef ERR
@@ -62,5 +63,6 @@ void obtener_trafico_entrante(u_char *args, const struct pcap_pkthdr *header, co
 void provoca_perdidas(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 void obtener_igmp(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 void obtener_rtp(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
+int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla);
 
 #endif

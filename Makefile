@@ -20,14 +20,14 @@ clean :
 objclean:
 	@rm *.o
 
-$(EXE) : % : %.o analiza.o
+$(EXE) : % : %.o analiza.o hash.o
 	@echo "#---------------------------"
 	@echo "# Generando $@ "
 	@echo "# Depende de $^"
 	@echo "# Ha cambiado $<"
-	$(CC) $(CFLAGS) -o $@ $@.o analiza.o $(FPCAP)
+	$(CC) $(CFLAGS) -o $@ $@.o analiza.o hash.o $(FPCAP)
 
-analiza.o : analiza.c analiza.h
+analiza.o : analiza.c analiza.h hash.h
 	@echo "#---------------------------"
 	@echo "# Generando $@"
 	@echo "# Depende de $^"

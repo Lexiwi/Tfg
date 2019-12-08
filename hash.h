@@ -74,6 +74,15 @@ int insertarNodoHash(TablaHash *tabla, char *clave, void *info);
 void* buscarNodoHash(TablaHash *tabla, char *clave);
 
 /**
+*  Busca en la tabla hash un nodo
+* Parametro: tabla. Tabla hash
+* Parametro: clave. Clave del nodo
+* Devuelve: Devuelve OK si encuentra el nodo o ERROR en caso de no encontrarlo
+*/
+
+int checkNodoHash(TablaHash *tabla, char *clave);
+
+/**
 *  Devuelve la info de un nodo
 * Parametro: nodo. Nodo Hash
 * Devuelve: Informacion del nodo

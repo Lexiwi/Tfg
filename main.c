@@ -1,4 +1,5 @@
 #include "analiza.h"
+#include "hash.h"
 
 pcap_t *handle = NULL;      // Manejador pcap
 
@@ -13,15 +14,16 @@ int main(int argc, char *argv[]) {
     int accion = -1;                // 1 - Monitoriza | 2 - Calcula QoS | 3 - Genera perdidas
     int opt = -1;                   // Variable para argumentos
     PcapDrop *pd = NULL;            // Estructura para provocar perdidas
-    bpf_u_int32 ip;
-    struct bpf_program fp;          // Mantiene la compilación del programa
+    //bpf_u_int32 ip;
+    //struct bpf_program fp;          // Mantiene la compilación del programa
 
-    FILE *f = NULL;
-    char *line = NULL;
-    char *token = NULL;
-    char filter[28];
     char filename[100];
-    size_t len = 0;
+
+    int res = 0;
+    const u_char *packet;
+    struct pcap_pkthdr *packet_header;
+
+    TablaHash* tabla;
     
 
     while( (opt = getopt(argc, argv, ":OF:lsm::") ) != -1) {
@@ -82,6 +84,7 @@ int main(int argc, char *argv[]) {
     }
 
     switch (accion) {
+
         case 1:
             signal(SIGINT, finaliza_monitorizacion);
             pcap_loop(handle, 0, obtener_trafico_entrante, NULL);
@@ -89,71 +92,28 @@ int main(int argc, char *argv[]) {
         
         case 2:
 
-            signal(SIGINT, finaliza_monitorizacion);
-            ////////////////////////IGMP//////////////////////////////
-            ip = conseguir_direccion_red();
-            if (pcap_compile(handle,&fp,FILTER_IGMP,0,ip) == -1) {
-                fprintf(stderr,"Error compilando el filtro: %s\n", pcap_geterr(handle));
-                pcap_close(handle);
-                return -1;
-            }
-            // Aplicamos el filtro
-            if (pcap_setfilter(handle,&fp) == -1) {
-                fprintf(stderr,"Error aplicando el filtro\n");
-                pcap_close(handle);
-                return -1;
-            }
-            pcap_freecode(&fp);
-            ////////////////////////////////////////////////////
-            pcap_loop(handle, 0, obtener_igmp, NULL);
-            system(COMMAND);
-            /////////////////////RTP/////////////////////
-            f = fopen(IGMP_IPS, "r");
-            if (f == NULL){
-                printf("Error al abrir el fichero %s.\n", IGMP_IPS);
-                pcap_close(handle);
+            // Creacion de la tabla
+	        tabla = crearTablaHash(30);
+            if(tabla == NULL) {
+                printf("Error al crear tabla hash");
                 return -1;
             }
 
-            while (getline(&line, &len, f) != -1) {
-            
-                token = strtok(line, " ");
-                token = strtok(NULL, " ");
+            //signal(SIGINT, finaliza_monitorizacion);
+            while ((res = pcap_next_ex(handle, &packet_header, &packet)) >= 0) {
 
-                sprintf(filter, "%s %s", FILTER_RTP, token);
-                /////////////////////////////
-                pcap_close(handle);
-                handle = abrir_captura_offline(filename); //Fuga de memoria
-                if(handle == NULL){
-                    return -1;
+                if (res == 0) {
+                    /*Sobrepasado timeout*/
+                    continue;
                 }
-                ////////////////////////////
-                if (pcap_compile(handle,&fp,filter,0,ip) == -1) {
-                    fprintf(stderr,"Error compilando el filtro: %s\n", pcap_geterr(handle));
-                    pcap_close(handle);
-                    fclose(f);
-                    return -1;
+
+                if ( leer_paquete(packet_header, packet, tabla) != 0) {
+                    printf("Mosquis\n");
                 }
-                // Aplicamos el filtro
-                if (pcap_setfilter(handle,&fp) == -1) {
-                    fprintf(stderr,"Error aplicando el filtro\n");
-                    pcap_close(handle);
-                    fclose(f);
-                    return -1;
-                }
-                printf("%s\n", filter);
-                pcap_loop(handle, 0, obtener_rtp, NULL);
-                pcap_freecode(&fp);
-                free(line);
-                line = NULL;
-                len = 0;
-                
+
             }
-            fclose(f);
-            free(line);
-            line = NULL;
-            len = 0;
-            /////////////////////////////////////////////
+            printf("Numero total de IPs de IGMP: %d\n", getNumNodes(tabla));
+            eliminarTablaHash(tabla);
             break;
 
         case 3:

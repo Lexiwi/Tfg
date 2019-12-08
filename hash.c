@@ -112,7 +112,7 @@ NodoHash* crearNodoHash(char *clave, void *info) {
 	return nodo;
 }
 
-int insertarNodoHash(TablaHash *tabla, char *clave, char *info) {
+int insertarNodoHash(TablaHash *tabla, char *clave, void *info) {
 	NodoHash* nodo;
 	NodoHash* nodo_aux;
 	int pos;
@@ -157,6 +157,27 @@ void* buscarNodoHash(TablaHash *tabla, char *clave) {
 	return nodo_aux->info;
 }
 
+int checkNodoHash(TablaHash *tabla, char *clave) {
+	//NodoHash* nodo;
+	NodoHash* nodo_aux;
+	int pos;
+
+	pos = funcionHash(tabla, clave);
+
+	if(tabla->nodos[pos] == NULL)
+		return -1;
+
+	for (nodo_aux = tabla->nodos[pos]; nodo_aux->siguiente != NULL; nodo_aux = nodo_aux->siguiente)
+		if(strcmp(nodo_aux->clave, clave) == 0)
+			break;
+
+	//Si no encontramos el nodo, devolvemos NULL
+	if(strcmp(nodo_aux->clave, clave) != 0)
+		return ERROR;
+
+	return OK;
+}
+
 void* nodoGetInfo(NodoHash* nodo) {
 	return nodo->info;
 }
@@ -171,7 +192,7 @@ NodoHash **getAllNodes(TablaHash *tabla) {
     if(ret == NULL)
         return NULL;
 
-    memset(ret, 0, sizeof(ret));
+    memset(ret, 0, sizeof(**ret));
 
     for(i = 0; i < tabla->tam; i++)
         ret[i] = NULL;

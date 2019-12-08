@@ -225,8 +225,64 @@ void obtener_rtp(u_char *args, const struct pcap_pkthdr *header, const u_char *p
     rtp_header = packet + LEN_ETH + ip_header_length + LEN_UDP;
     numSeq = rtp_header[raw_offset] * 256 + rtp_header[raw_offset + 1];
     printf("%d\n", numSeq);
-    //fprintf(stdout, "%.3ld\n" ,header->ts.tv_usec);
+    printf("%.6ld\n" ,header->ts.tv_usec);
     
     
     return;
+}
+
+int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla) {
+
+    struct ether_header *eth_header;
+    const struct sniff_ip *ip;          /* Cabecera IP */
+    u_char protocolo;
+    const u_char *ip_header;
+    char clave[16];
+    char fichero[20];
+    FILE *fp = NULL;
+
+    /* Nos aseguramos que sea un paquete IP */
+    eth_header = (struct ether_header *) packet;
+    if (ntohs(eth_header->ether_type) != ETHERTYPE_IP) {
+        printf("No es un paquete IP. Saltando...\n\n");
+        return -1;
+    }
+
+    /* Nos colocamos al principio de la cabecera IP */
+    ip_header = packet + LEN_ETH;
+
+    /* Vamos que protocolo se esta utilizando*/
+    protocolo = (u_char)*(ip_header + 9);
+    if (protocolo == IPPROTO_IGMP) {
+        ip = (struct sniff_ip*)(packet + LEN_ETH);
+        strcpy(clave, inet_ntoa(ip->ip_dst));
+
+        //Info tendria que ser el numero de veces que aparece???
+        if (checkNodoHash(tabla, clave) == -1) {
+            insertarNodoHash(tabla, clave, (void*)clave);
+        }
+
+    } else if (protocolo == IPPROTO_UDP) {
+
+        strcpy(clave, inet_ntoa(ip->ip_dst));
+        
+        if (checkNodoHash(tabla, clave) == 0) {
+            sprintf(fichero, "%s.txt", clave);
+            fp = fopen(fichero, "a");
+            if (fp == NULL){
+                printf("Error al abrir el fichero: %s.\n", fichero);
+                return -1;
+            }
+
+        }
+    }
+
+    
+    
+    return 0;
+
+    //fprintf(fp, "%s", inet_ntoa(ip->ip_src));
+    //fprintf(fp, " %s", inet_ntoa(ip->ip_dst));
+
+
 }
