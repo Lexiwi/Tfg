@@ -237,9 +237,15 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
     const struct sniff_ip *ip;          /* Cabecera IP */
     u_char protocolo;
     const u_char *ip_header;
+    const u_char *rtp_header;
     char clave[16];
     char fichero[20];
     FILE *fp = NULL;
+
+    int ip_header_length;
+    uint16_t numSeq;
+    unsigned int raw_offset = 2;
+
 
     /* Nos aseguramos que sea un paquete IP */
     eth_header = (struct ether_header *) packet;
@@ -248,41 +254,57 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
         return -1;
     }
 
+    ip = (struct sniff_ip*)(packet + LEN_ETH);
+    strcpy(clave, inet_ntoa(ip->ip_dst));
+
     /* Nos colocamos al principio de la cabecera IP */
     ip_header = packet + LEN_ETH;
+    /* Obtenemos el campo IHL para averiguar el tamanio de la cabecera IP */
+    ip_header_length = ((*ip_header) & 0x0F);
+    /* El campo IHL es un segmento de 32 bits. Multiplicamos por 4 para obtener un puntero aritmetico*/
+    ip_header_length = ip_header_length * 4;
 
     /* Vamos que protocolo se esta utilizando*/
     protocolo = (u_char)*(ip_header + 9);
     if (protocolo == IPPROTO_IGMP) {
-        ip = (struct sniff_ip*)(packet + LEN_ETH);
-        strcpy(clave, inet_ntoa(ip->ip_dst));
-
+        sprintf(fichero, "%s_igmp.txt", clave);
         //Info tendria que ser el numero de veces que aparece???
         if (checkNodoHash(tabla, clave) == -1) {
-            insertarNodoHash(tabla, clave, (void*)clave);
+            insertarNodoHash(tabla, clave, NULL);
         }
+        fp = fopen(fichero, "a");
+        if (fp == NULL){
+            printf("Error al abrir el fichero %s.\n", fichero);
+            return -1;
+        }
+        fprintf(fp, "%s", inet_ntoa(ip->ip_src));
+        fprintf(fp, " %s", clave);
+        fprintf(fp, " %ld\n", ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec)));
+        fclose(fp);
 
-    } else if (protocolo == IPPROTO_UDP) {
+    } 
+    else if (protocolo == IPPROTO_UDP) {
 
-        strcpy(clave, inet_ntoa(ip->ip_dst));
-        
         if (checkNodoHash(tabla, clave) == 0) {
-            sprintf(fichero, "%s.txt", clave);
+            sprintf(fichero, "%s_iudp.txt", clave);
             fp = fopen(fichero, "a");
             if (fp == NULL){
                 printf("Error al abrir el fichero: %s.\n", fichero);
                 return -1;
             }
-
+            rtp_header = packet + LEN_ETH + ip_header_length + LEN_UDP;
+            numSeq = rtp_header[raw_offset] * 256 + rtp_header[raw_offset + 1];
+            fprintf(fp, "%s", inet_ntoa(ip->ip_src));
+            fprintf(fp, " %s", clave);
+            fprintf(fp, " %ld", ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec)));
+            fprintf(fp, " %d\n", numSeq);
+            fclose(fp);
         }
+    }
+    else {
+
     }
 
     
-    
     return 0;
-
-    //fprintf(fp, "%s", inet_ntoa(ip->ip_src));
-    //fprintf(fp, " %s", inet_ntoa(ip->ip_dst));
-
-
 }

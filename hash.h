@@ -71,7 +71,7 @@ int insertarNodoHash(TablaHash *tabla, char *clave, void *info);
 * Devuelve: Devuelve el contenido del nodo o NULL en caso de no encontrarlo
 */
 
-void* buscarNodoHash(TablaHash *tabla, char *clave);
+NodoHash* buscarNodoHash(TablaHash *tabla, char *clave);
 
 /**
 *  Busca en la tabla hash un nodo

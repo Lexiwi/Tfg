@@ -113,7 +113,6 @@ int main(int argc, char *argv[]) {
 
             }
             printf("Numero total de IPs de IGMP: %d\n", getNumNodes(tabla));
-            eliminarTablaHash(tabla);
             break;
 
         case 3:
@@ -125,9 +124,14 @@ int main(int argc, char *argv[]) {
             break;
     }
 
-    if(accion == 3) {
+    if(accion == 2){
+        eliminarTablaHash(tabla);
+    } 
+    else if(accion == 3) {
         pcap_dump_close(pd->dumpfile);
         free(pd);
+    } else {
+        
     }
     pcap_close(handle);
     return 0;

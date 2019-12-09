@@ -5,7 +5,7 @@
 */
 struct _NodoHash {
 	char clave[MAX_CLAVE];    	/*!< Identificador del nodo */
-	char *info;     			/*!< Información del nodo */
+	void *info;     				/*!< Información del nodo */
 	NodoHash *siguiente;		/*!< Nodo siguiente si hay colisión. NULL si no */
 };
 
@@ -101,12 +101,7 @@ NodoHash* crearNodoHash(char *clave, void *info) {
 
 	strcpy(nodo->clave, clave);
 
-	nodo->info = (char*)malloc(sizeof(char)*(strlen(info)+1));
-	if (nodo->info == NULL) {
-		free(nodo);
-		return NULL;
-	}
-	
+	nodo->info = info;
 	nodo->siguiente = NULL;
 
 	return nodo;
@@ -136,7 +131,7 @@ int insertarNodoHash(TablaHash *tabla, char *clave, void *info) {
 	return OK;
 }
 
-void* buscarNodoHash(TablaHash *tabla, char *clave) {
+NodoHash* buscarNodoHash(TablaHash *tabla, char *clave) {
 	//NodoHash* nodo;
 	NodoHash* nodo_aux;
 	int pos;
@@ -154,7 +149,7 @@ void* buscarNodoHash(TablaHash *tabla, char *clave) {
 	if(strcmp(nodo_aux->clave, clave) != 0)
 		return NULL;
 
-	return nodo_aux->info;
+	return nodo_aux;
 }
 
 int checkNodoHash(TablaHash *tabla, char *clave) {
