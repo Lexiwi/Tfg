@@ -266,11 +266,12 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
 
     /* Vamos que protocolo se esta utilizando*/
     protocolo = (u_char)*(ip_header + 9);
+
     if (protocolo == IPPROTO_IGMP) {
         sprintf(fichero, "%s_igmp.txt", clave);
         //Info tendria que ser el numero de veces que aparece???
         if (checkNodoHash(tabla, clave) == -1) {
-            insertarNodoHash(tabla, clave, NULL);
+            insertarNodoHash(tabla, clave, clave);
         }
         fp = fopen(fichero, "a");
         if (fp == NULL){
@@ -286,7 +287,7 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
     else if (protocolo == IPPROTO_UDP) {
 
         if (checkNodoHash(tabla, clave) == 0) {
-            sprintf(fichero, "%s_iudp.txt", clave);
+            sprintf(fichero, "%s_udp.txt", clave);
             fp = fopen(fichero, "a");
             if (fp == NULL){
                 printf("Error al abrir el fichero: %s.\n", fichero);
@@ -302,7 +303,7 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
         }
     }
     else {
-
+        printf("Ni IGMP ni UDP\n");
     }
 
     

@@ -5,7 +5,7 @@
 */
 struct _NodoHash {
 	char clave[MAX_CLAVE];    	/*!< Identificador del nodo */
-	void *info;     				/*!< Información del nodo */
+	char *info;     				/*!< Información del nodo */
 	NodoHash *siguiente;		/*!< Nodo siguiente si hay colisión. NULL si no */
 };
 
@@ -101,7 +101,11 @@ NodoHash* crearNodoHash(char *clave, void *info) {
 
 	strcpy(nodo->clave, clave);
 
-	nodo->info = info;
+	nodo->info = (char*)malloc(sizeof(char)*(strlen(info)+1));
+	if(nodo->info == NULL)
+		return NULL;
+
+	strcpy(nodo->info, info);
 	nodo->siguiente = NULL;
 
 	return nodo;

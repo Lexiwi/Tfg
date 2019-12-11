@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
                 }
 
                 if ( leer_paquete(packet_header, packet, tabla) != 0) {
-                    printf("Mosquis\n");
+                    //printf("Mosquis\n");
                 }
 
             }
