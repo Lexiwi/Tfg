@@ -5,7 +5,7 @@
 */
 struct _NodoHash {
 	char clave[MAX_CLAVE];    	/*!< Identificador del nodo */
-	char *info;     				/*!< Información del nodo */
+	List *lista;   				/*!< Información del nodo */
 	NodoHash *siguiente;		/*!< Nodo siguiente si hay colisión. NULL si no */
 };
 
@@ -82,7 +82,7 @@ int eliminarNodoRC(NodoHash* nodo) {
 	//if(nodo->info->nParam > 0){
 	//	free(nodo->info->tipo_args);
 	//}
-	free(nodo->info);
+	list_free(nodo->lista);
 	free(nodo);
 
 	return OK;
@@ -94,6 +94,7 @@ int funcionHash(TablaHash* tabla, char *clave) {
 
 NodoHash* crearNodoHash(char *clave, void *info) {
 	NodoHash* nodo =  NULL;
+	EleList* e = NULL;
 
 	nodo = (NodoHash*) malloc(sizeof(NodoHash));
 	if (nodo == NULL)
@@ -101,11 +102,19 @@ NodoHash* crearNodoHash(char *clave, void *info) {
 
 	strcpy(nodo->clave, clave);
 
-	nodo->info = (char*)malloc(sizeof(char)*(strlen(info)+1));
-	if(nodo->info == NULL)
+	nodo->lista = list_ini();
+	if(nodo->lista == NULL)
 		return NULL;
 
-	strcpy(nodo->info, info);
+	//strcpy(nodo->info, info);
+	e = elelist_ini();
+	elelist_setInfo(e, info);
+	if(e == NULL)
+		return NULL;
+
+	list_insertFirst(nodo->lista, e);
+
+
 	nodo->siguiente = NULL;
 
 	return nodo;
@@ -177,8 +186,8 @@ int checkNodoHash(TablaHash *tabla, char *clave) {
 	return OK;
 }
 
-void* nodoGetInfo(NodoHash* nodo) {
-	return nodo->info;
+List* nodoGetInfo(NodoHash* nodo) {
+	return nodo->lista;
 }
 
 NodoHash **getAllNodes(TablaHash *tabla) {
@@ -219,27 +228,21 @@ NodoHash **getAllNodes(TablaHash *tabla) {
     int num, i;
     if(tabla == NULL)
         return NULL;
-
     ret = (void**) malloc(sizeof(void*)*MAX_HASH_RET);
     if(ret == NULL)
         return NULL;
-
     num = getNumNodes(tabla);
-
     nodos = getAllNodes(tabla);
     if(nodos == NULL) {
         free(ret);
         return NULL;
     }
-
     for(i = 0; i < num && nodos[i] != NULL; i++)
         ret[i] = nodos[i]->info;
-
     while(i < MAX_HASH_RET) {
         ret[i] = NULL;
         i++;
     }
-
     return ret;
 }*/
 

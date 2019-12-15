@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "list.h"
+#include "elelist.h"
 
 #define OK 0			  /* OK */
 #define ERROR -1		  /* ERROR */
@@ -87,7 +89,7 @@ int checkNodoHash(TablaHash *tabla, char *clave);
 * Parametro: nodo. Nodo Hash
 * Devuelve: Informacion del nodo
 */
-void* nodoGetInfo(NodoHash* nodo);
+List* nodoGetInfo(NodoHash* nodo);
 
 /**
 *  Devuelve todos los nodos contenidos en la tabla hash y sus sublistas

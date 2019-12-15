@@ -280,6 +280,7 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
         }
         fprintf(fp, "%s", inet_ntoa(ip->ip_src));
         fprintf(fp, " %s", clave);
+        fprintf(fp, " %d", header->len);
         fprintf(fp, " %ld\n", ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec)));
         fclose(fp);
 
@@ -297,8 +298,21 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
             numSeq = rtp_header[raw_offset] * 256 + rtp_header[raw_offset + 1];
             fprintf(fp, "%s", inet_ntoa(ip->ip_src));
             fprintf(fp, " %s", clave);
-            fprintf(fp, " %ld", ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec)));
-            fprintf(fp, " %d\n", numSeq);
+            fprintf(fp, " %d", numSeq);
+            fprintf(fp, " %d", header->len);
+            fprintf(fp, " %ld\n", ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec)));
+            fclose(fp);
+        } else {
+
+            fp = fopen("ruido.txt", "a");
+            if (fp == NULL){
+                printf("Error al abrir el fichero: %s.\n", fichero);
+                return -1;
+            }
+            fprintf(fp, "%s", inet_ntoa(ip->ip_src));
+            fprintf(fp, " %s", clave);
+            fprintf(fp, " %d", header->len);
+            fprintf(fp, " %ld\n", ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec)));
             fclose(fp);
         }
     }
