@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "list.h"
-#include "elelist.h"
 
 #define OK 0			  /* OK */
 #define ERROR -1		  /* ERROR */

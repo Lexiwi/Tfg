@@ -20,12 +20,12 @@ clean :
 objclean:
 	@rm *.o
 
-$(EXE) : % : %.o analiza.o hash.o list.o elelist.o
+$(EXE) : % : %.o analiza.o hash.o list.o
 	@echo "#---------------------------"
 	@echo "# Generando $@ "
 	@echo "# Depende de $^"
 	@echo "# Ha cambiado $<"
-	$(CC) $(CFLAGS) -o $@ $@.o analiza.o hash.o list.o elelist.o $(FPCAP)
+	$(CC) $(CFLAGS) -o $@ $@.o analiza.o hash.o list.o $(FPCAP)
 
 analiza.o : analiza.c analiza.h hash.h
 	@echo "#---------------------------"
@@ -34,7 +34,7 @@ analiza.o : analiza.c analiza.h hash.h
 	@echo "# Ha cambiado $<"
 	$(CC) $(CFLAGS) -c $< $(FPCAP)
 
-hash.o : hash.c hash.h list.h elelist.h
+hash.o : hash.c hash.h list.h
 	@echo "#---------------------------"
 	@echo "# Generando $@"
 	@echo "# Depende de $^"
@@ -42,13 +42,6 @@ hash.o : hash.c hash.h list.h elelist.h
 	$(CC) $(CFLAGS) -c $<
 
 list.o: list.c list.h
-	@echo "#---------------------------"
-	@echo "# Generando $@"
-	@echo "# Depende de $^"
-	@echo "# Ha cambiado $<"
-	$(CC) $(FLAGS) -c $<
-
-elelist-int.o : elelist-int.c elelist.h
 	@echo "#---------------------------"
 	@echo "# Generando $@"
 	@echo "# Depende de $^"

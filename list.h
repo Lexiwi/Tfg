@@ -14,7 +14,6 @@
 #ifndef LIST_H
 #define LIST_H
 
-#include "elelist.h"
 
 /**********************  Nuevo tipo de datos para Lista ***********************/
 typedef struct _List List;
@@ -27,19 +26,16 @@ List* list_ini();
 void list_free(List* list);
 
 /* Inserta al principio de la lista realizando una copia del elemento. */
-List* list_insertFirst(List* list, const EleList *elem);
+List* list_insertFirst(List* list, const char *elem);
 
 /* Inserta al final de la lista realizando una copia del elemento. */
-List* list_insertLast(List* list, const EleList *elem);
-
-/* Inserta en orden en la lista realizando una copia del elemento. */
-List* list_insertInOrder(List *list, const EleList *pElem);
+List* list_insertLast(List* list, const char *elem);
 
 /* Extrae del principio de la lista realizando una copia del elemento almacenado en dicho nodo. */
-EleList* list_extractFirst(List* list);
+char* list_extractFirst(List* list);
 
 /* Extrae del final de la lista realizando una copia del elemento almacenado en dicho nodo. */
-EleList* list_extractLast(List* list);
+char* list_extractLast(List* list);
 
 /* Comprueba si una lista está vacía o no. */
 int list_isEmpty(const List* list);

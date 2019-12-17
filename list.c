@@ -12,6 +12,7 @@
  
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
  
 #include "list.h"
 
@@ -21,7 +22,7 @@
 
 /******************* Definicion de las estructuras de datos *******************/
 typedef struct _Node{
-    EleList* data;
+    char* data;
     struct _Node *next;
 } Node;
 
@@ -58,7 +59,7 @@ Node *node_ini(){
 ------------------------------------------------------------------------*/
 void node_free(Node *node){
     if(node){
-        elelist_free(data(node));
+        free(data(node));
         free(node);
     }
 }
@@ -92,7 +93,7 @@ List* list_ini(){
         return;
     
     while(list_isEmpty(list)==0)
-        elelist_free(list_extractFirst(list));
+        free(list_extractFirst(list));
     free(list);
  }
  
@@ -103,7 +104,7 @@ List* list_ini(){
            EleList *:Puntero del elemento a introducir
  * @Output: List *: Puntero de la lista modificada.
  ------------------------------------------------------------------------*/
- List* list_insertFirst(List* list, const EleList *elem){
+ List* list_insertFirst(List* list, const char *elem){
     Node *pn;
     
     if(!list || !elem)
@@ -114,13 +115,12 @@ List* list_ini(){
     if(!pn)
         return NULL;
     
-   
-    data(pn)=elelist_copy(elem);
+    data(pn) = (char*)malloc(sizeof(char)*(strlen(elem)+1));
     if(!data(pn)){
         node_free(pn);
         return NULL;
     }
-    
+    strcpy(data(pn), elem);
     next(pn)=node(list);
     node(list)=pn;
     
@@ -134,7 +134,7 @@ List* list_ini(){
            EleList *: Puntero al elemento a introducir.
  * @Output: List *: Puntero a la lista modificada.
 ------------------------------------------------------------------------*/
-List* list_insertLast(List* list, const EleList *elem){
+List* list_insertLast(List* list, const char *elem){
     Node *pn, *naux;
     if(!list || !elem)
         return NULL;
@@ -142,12 +142,13 @@ List* list_insertLast(List* list, const EleList *elem){
     pn=node_ini();
     if(!pn)
         return NULL;
-        
-    data(pn)=elelist_copy(elem);
+    
+    data(pn) = (char*)malloc(sizeof(char)*(strlen(elem)+1));
     if(!data(pn)){
         node_free(pn);
         return NULL;
     }
+    strcpy(data(pn), elem);
     if(list_isEmpty(list)==1){
         node(list)=pn;
         return list;
@@ -162,83 +163,26 @@ List* list_insertLast(List* list, const EleList *elem){
 }
 
 /*------------------------------------------------------------------------
- * @Title: list_insertInOrder
- * @Description: Inserta un elemento en orden copiando el elemento.
- * @Input: List *: Puntero a la lista a modificar.
-           EleList *: Puntero al elemento a introducir.
- * @Output: List *: Puntero a la lista modificada.
-------------------------------------------------------------------------*/
-List* list_insertInOrder(List *list, const EleList *pElem){
-    Node *pn, *naux;
-    if(!list || !pElem)
-        return NULL;
-    
-    pn=node_ini();
-    
-    if(!pn)
-        return NULL;
-        
-    data(pn)=elelist_copy(pElem);
-    
-    if(!data(pn)){
-        node_free(pn);
-        return NULL;
-    }
-    
-    /*Caso 1: Lista vacía*/
-    if(list_isEmpty(list)==1){
-        node(list)=pn;
-        return list;
-    }
-    
-    /*Caso 2: El elemento a introducir es menor que el primer elemento de la lista*/
-   
-    if(*((int*)elelist_getInfo(pElem)) < *((int *)elelist_getInfo(data(node(list))))){
-        next(pn)=node(list);
-        node(list)=pn;
-        return list;
-    }
-    
-    /*Caso 3: El elemento no se introduce al inicio*/
-    naux=node(list);
-    /*A través de un bucle se ve cuándo es menor que el siguiente
-      y se introduce justo antes*/
-    while(next(naux)!=NULL){
-        if(*((int*)elelist_getInfo(pElem)) < *((int *)elelist_getInfo(data(next(naux))))){
-            next(pn)=next(naux);
-            next(naux)=pn;
-            return list;
-        }
-        else{
-            /*Si no es menor se salta a la siguiente posición*/
-            naux=next(naux);
-        }
-    }
-    /*Si no es menor que ninguno se pone al final de la lista*/
-    next(naux)=pn;
-    return list;
-}
-
-/*------------------------------------------------------------------------
  * @Title: list_extractFirst
  * @Description: Inserta un elemento en orden copiando el elemento.
  * @Input: List *: Puntero a la lista a modificar.
            EleList *: Puntero al elemento a introducir.
  * @Output: List *: Puntero a la lista modificada.
 ------------------------------------------------------------------------*/
-EleList* list_extractFirst(List* list){
+char* list_extractFirst(List* list){
     Node *pn =NULL;
-    EleList *pe = NULL;
+    char *pe = NULL;
     
     if(!list || list_isEmpty(list)==1)
         return NULL;
     
     pn=node(list);
-    pe=elelist_copy(data(pn));
+    pe=(char*)malloc(sizeof(char)*(strlen(data(pn))+1));
     
     if(!pe){
         return NULL;
     }
+    strcpy(pe, data(pn));
     node(list)=next(pn);
     node_free(pn);
     
@@ -251,18 +195,20 @@ EleList* list_extractFirst(List* list){
  * @Input: List *: Puntero a la lista a extraer.
  * @Output: EleList *: Puntero al elemento extraído
 ------------------------------------------------------------------------*/
-EleList* list_extractLast(List* list){
-    Node *pn;
-    EleList *pe;
+char* list_extractLast(List* list){
+    Node *pn = NULL;
+    char *pe = NULL;
     
     if(!list || list_isEmpty(list))
         return NULL;
     
     /*Caso 1: Sólo un elemento en la lista*/
     if(!next(node(list))){
-        pe=elelist_copy(data(node(list)));
+        pe=(char*)malloc(sizeof(char)*(strlen(data(pn))+1));
+        
         if(!pe)
             return NULL;
+        strcpy(pe, data(pn));
         node_free(node(list));
         node(list)=NULL;
         return pe;
@@ -274,9 +220,10 @@ EleList* list_extractLast(List* list){
     while(next(next(pn))!=NULL){
         pn=next(pn);
     }
-    pe=elelist_copy(data(next(pn)));
+    pe=(char*)malloc(sizeof(char)*(strlen(data(pn))+1));
     if(!pe)
         return NULL;
+    strcpy(pe, data(pn));
     node_free(next(pn));
     next(pn)=NULL;
     return pe;
@@ -342,7 +289,7 @@ int list_print(FILE *fd, const List* list){
     pn=node(list);
     
     while(pn!=NULL){
-        aux=elelist_print(fd, data(pn));
+        fprintf(fd, "%s", data(pn));
         fprintf(fd,"\n");
         contador+=(aux+1);
         pn=next(pn);
@@ -351,23 +298,28 @@ int list_print(FILE *fd, const List* list){
 }
 
 int list_check_element(const List* list, char* ip){
-    Node *pn;
+    Node *pn = NULL;
+    char *pe = NULL;
     int contador, aux;
 
     if(!ip || !list)
-        return -1;
+        return 0;
     
     if(list_isEmpty(list))
-        return -1;
+        return 0;
     
-    pn=node(list);
+    pn = node(list);
     
     while(pn!=NULL){
 
-        if(strcmp(pn->info, ip) == 0){
+        //if(strcmp(pn->data, ip) == 0){
+        //    return 1;
+        //}
+        pe = data(pn);
+        if(strcmp(pe, ip) == 0){
             return 1;
         }
-        pn=next(pn);
+        pn = next(pn);
     }
 
     return 0;
@@ -377,15 +329,15 @@ int list_extractElement(List* list, char* ip){
 
     Node *pn =NULL;
     Node *pa =NULL;
-    EleList *pe = NULL;
+    char *pe = NULL;
     
     if(!list || list_isEmpty(list)==1)
-        return NULL;
+        return 0;
     
     pn=node(list);
     
     pe = data(pn);
-    if(strcmp(pe->info, ip) == 0){
+    if(strcmp(pe, ip) == 0){
         pe = list_extractFirst(list);
         if(pe == NULL)
             return 0;
@@ -393,10 +345,10 @@ int list_extractElement(List* list, char* ip){
         return 1;
     }
 
-    pa = pn
+    pa = pn;
     while(pn != NULL){
         pe = data(pn);
-        if(strcmp(pe->info, ip) == 0){
+        if(strcmp(pe, ip) == 0){
             if(pn->next == NULL)
                 pa->next = NULL;
             else
@@ -404,9 +356,9 @@ int list_extractElement(List* list, char* ip){
             node_free(pn);
             return 1;
         }
-        pa = pn
-        pn = next(pa)
+        pa = pn;
+        pn = next(pa);
     }
     
-    return 1;
+    return 0;
 }

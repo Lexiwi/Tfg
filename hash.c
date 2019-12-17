@@ -94,7 +94,6 @@ int funcionHash(TablaHash* tabla, char *clave) {
 
 NodoHash* crearNodoHash(char *clave, void *info) {
 	NodoHash* nodo =  NULL;
-	EleList* e = NULL;
 
 	nodo = (NodoHash*) malloc(sizeof(NodoHash));
 	if (nodo == NULL)
@@ -107,13 +106,6 @@ NodoHash* crearNodoHash(char *clave, void *info) {
 		return NULL;
 
 	//strcpy(nodo->info, info);
-	e = elelist_ini();
-	elelist_setInfo(e, info);
-	if(e == NULL)
-		return NULL;
-
-	list_insertFirst(nodo->lista, e);
-
 
 	nodo->siguiente = NULL;
 
@@ -129,6 +121,7 @@ int insertarNodoHash(TablaHash *tabla, char *clave, void *info) {
 		return ERROR;
 
 	nodo = crearNodoHash(clave, info);
+	list_insertFirst(nodo->lista, (char*)info);
 	pos = funcionHash(tabla, clave);
 
 	if (tabla->nodos[pos] != NULL) {

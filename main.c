@@ -130,9 +130,7 @@ int main(int argc, char *argv[]) {
     else if(accion == 3) {
         pcap_dump_close(pd->dumpfile);
         free(pd);
-    } else {
-        
-    }
+    } else {}
     pcap_close(handle);
     return 0;
 }

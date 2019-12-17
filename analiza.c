@@ -238,7 +238,9 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
     u_char protocolo;
     const u_char *ip_header;
     const u_char *rtp_header;
+    const u_char *igmp_header;
     char clave[16];
+    char cliente[16];
     char fichero[20];
     FILE *fp = NULL;
 
@@ -246,6 +248,8 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
     uint16_t numSeq;
     unsigned int raw_offset = 2;
 
+    NodoHash* nodo = NULL;
+    List* lista = NULL;
 
     /* Nos aseguramos que sea un paquete IP */
     eth_header = (struct ether_header *) packet;
@@ -256,6 +260,7 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
 
     ip = (struct sniff_ip*)(packet + LEN_ETH);
     strcpy(clave, inet_ntoa(ip->ip_dst));
+    strcpy(cliente, inet_ntoa(ip->ip_src));
 
     /* Nos colocamos al principio de la cabecera IP */
     ip_header = packet + LEN_ETH;
@@ -267,24 +272,62 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
     /* Vamos que protocolo se esta utilizando*/
     protocolo = (u_char)*(ip_header + 9);
 
+    // Paquete IGMP
     if (protocolo == IPPROTO_IGMP) {
+        
+        igmp_header = packet + LEN_ETH + ip_header_length;
+        // IGMP Report Group
+        if( ((*igmp_header) & 0xFF) == 0x16 ){
+            nodo = buscarNodoHash(tabla, clave);
+
+            //Si el arbol no esta registrado, lo guardamos
+            if (nodo == NULL) {
+                insertarNodoHash(tabla, clave, cliente);
+            } else {
+                lista = nodoGetInfo(nodo);
+                // Si el arbol esta registrado pero el cliente no, lo añadimos
+                if(list_check_element(lista, cliente) == 0){
+                    list_insertFirst(lista, cliente);
+                }
+                    
+            }
+        // IGMP Leave Group
+        } else if( ((*igmp_header) & 0xFF) == 0x17 ) {
+            nodo = buscarNodoHash(tabla, clave);
+            //Si obtenemos un leave y el arbol no esta registrado, comprobamos el cliente
+            if (nodo != NULL) {
+                lista = nodoGetInfo(nodo);
+                list_extractElement(lista, cliente);
+                // Si no quedan clientes en el arbol, metemos un indicador
+                if(list_isEmpty(lista) == 1){
+                    sprintf(fichero, "%s_udp.txt", clave);
+                    fp = fopen(fichero, "a");
+                    if (fp == NULL){
+                        printf("Error al abrir el fichero %s.\n", fichero);
+                        return -1;
+                    }
+                    fprintf(fp, "=======\n");
+                    fclose(fp);
+                }
+                
+            }
+
+        } else{}
+
         sprintf(fichero, "%s_igmp.txt", clave);
-        //Info tendria que ser el numero de veces que aparece???
-        if (checkNodoHash(tabla, clave) == -1) {
-            insertarNodoHash(tabla, clave, clave);
-        }
         fp = fopen(fichero, "a");
         if (fp == NULL){
             printf("Error al abrir el fichero %s.\n", fichero);
             return -1;
         }
-        fprintf(fp, "%s", inet_ntoa(ip->ip_src));
+        fprintf(fp, "%s", cliente);
         fprintf(fp, " %s", clave);
         fprintf(fp, " %d", header->len);
         fprintf(fp, " %ld\n", ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec)));
         fclose(fp);
-
-    } 
+        
+    }
+    // Caso UDP
     else if (protocolo == IPPROTO_UDP) {
 
         if (checkNodoHash(tabla, clave) == 0) {
