@@ -5,7 +5,14 @@
 */
 struct _NodoHash {
 	char clave[MAX_CLAVE];    	/*!< Identificador del nodo */
-	List *lista;   				/*!< Información del nodo */
+	List *lista;   				/*!< Lista de clientes */
+	int paqRec;					/*!< Num. paquetes recibidos */
+	int paqPer;					/*!< Num. paquetes perdidos */
+	double ret;					/*!< Retardo total */
+	double retCuadrado;			/*!< Retardo al cuadrado total */
+	double retAnterior;			/*!< Retardo del paquete anterior */
+	int bytes;					/*!< Num. bytes total */
+	int igmpErr;				/*!< NUm. errores IGMP */
 	NodoHash *siguiente;		/*!< Nodo siguiente si hay colisión. NULL si no */
 };
 
@@ -105,7 +112,13 @@ NodoHash* crearNodoHash(char *clave, void *info) {
 	if(nodo->lista == NULL)
 		return NULL;
 
-	//strcpy(nodo->info, info);
+	nodo->paqRec = 0;					
+	nodo->paqPer = 0;
+	nodo->ret = 0.0;
+	nodo->retCuadrado = 0.0;
+	nodo->retAnterior = 0.0;
+	nodo->bytes = 0;
+	nodo->igmpErr = 0;
 
 	nodo->siguiente = NULL;
 
@@ -258,4 +271,123 @@ int getNumNodes(TablaHash *tabla) {
         }
 
     return j;
+}
+
+int getNumRecibidos(NodoHash* nodo) {
+
+	if (nodo == NULL)
+		return -1;
+
+	return nodo->paqRec;
+}
+
+int setNumRecibidos(NodoHash* nodo, int num) {
+	
+	if (nodo == NULL)
+		return -1;
+
+	nodo->paqRec = nodo->paqRec + num;
+	return 0;
+}
+
+int getNumPerdidos(NodoHash* nodo) {
+
+	if (nodo == NULL)
+		return -1;
+
+	return nodo->paqPer;
+}
+
+int setNumPerdidos(NodoHash* nodo, int num) {
+	
+	if (nodo == NULL)
+		return -1;
+
+	nodo->paqPer = nodo->paqPer + num;
+	return 0;
+}
+
+double getRetardo(NodoHash* nodo) {
+
+	if (nodo == NULL)
+		return -1;
+	
+	return nodo->ret;
+}
+
+int setRetardo(NodoHash* nodo, double ret) {
+	
+	if (nodo == NULL)
+		return -1;
+
+	nodo->ret = nodo->ret + ret;
+	return 0;
+}
+
+double getRetardoCuadrado(NodoHash* nodo) {
+
+	if (nodo == NULL)
+		return -1;
+
+	return nodo->retCuadrado;
+}
+
+int setRetardoCuadrado(NodoHash* nodo, double ret) {
+	
+	if (nodo == NULL)
+		return -1;
+	
+	nodo->retCuadrado = nodo->retCuadrado + ret;
+	return 0;
+}
+
+double getLlegadaAnterior(NodoHash* nodo) {
+
+	if (nodo == NULL)
+		return -1;
+
+    return nodo->retAnterior;
+}
+
+int setLlegadaAnterior(NodoHash* nodo, double ret) {
+	
+	if (nodo == NULL)
+		return -1;
+
+    nodo->retAnterior = nodo->retAnterior + ret;
+	return 0;
+}
+
+int getNumBytes(NodoHash* nodo) {
+
+	if (nodo == NULL)
+		return -1;
+
+    return nodo->bytes;
+}
+
+int setNumBytes(NodoHash* nodo, int num) {
+	
+	if (nodo == NULL)
+		return -1;
+
+    nodo->bytes = nodo->bytes + num;
+    return 0;
+}
+
+int getNumIgmpErr(NodoHash* nodo) {
+
+	if (nodo == NULL)
+		return -1;
+
+    return nodo->igmpErr;
+}
+
+int setNumIgmpErr(NodoHash* nodo, int num) {
+	
+	if (nodo == NULL)
+		return -1;
+
+    nodo->igmpErr = nodo->igmpErr + num;
+    return 0;
 }

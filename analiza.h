@@ -13,6 +13,7 @@
 #include <signal.h>
 #include <time.h>
 #include "hash.h"
+#include "listControl.h"
 /* constantes */
 
 /*#ifndef ERR
@@ -27,9 +28,6 @@
 #define DROP_FILE_NAME "file_drop"
 #define FILTER_IGMP "igmp"
 #define FILTER_RTP "udp and dst"
-#define IGMP_FIELDS "igmp_fields.txt"
-#define IGMP_IPS "igmp_ips.txt"
-#define COMMAND "cut -d ' ' -f1-2 igmp_fields.txt | sort | uniq > igmp_ips.txt "
 
 struct sniff_ip {
     u_char ip_vhl;		/* version << 4 | header length >> 2 */
@@ -63,6 +61,6 @@ void obtener_trafico_entrante(u_char *args, const struct pcap_pkthdr *header, co
 void provoca_perdidas(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 void obtener_igmp(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 void obtener_rtp(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
-int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla);
+int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla, ListControl* igmp, ListControl* udp);
 
 #endif

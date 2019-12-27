@@ -171,11 +171,11 @@ void obtener_igmp(u_char *args, const struct pcap_pkthdr *header, const u_char *
 
     igmp_header = packet + LEN_ETH + ip_header_length;
     if( ((*igmp_header) & 0xFF) == 0x16 ) {
-        fp = fopen(IGMP_FIELDS, "a");
-        if (fp == NULL){
-            printf("Error al abrir el fichero %s. Saltando...\n\n", IGMP_FIELDS);
-            return;
-        }
+        //fp = fopen(IGMP_FIELDS, "a");
+        //if (fp == NULL){
+        //    printf("Error al abrir el fichero %s. Saltando...\n\n", IGMP_FIELDS);
+        //    return;
+        //}
         /* Igualamos la estructura con el inicio de la cabecera IP y obtenemos 
         * la direccion IP origen y destino*/
         ip = (struct sniff_ip*)(packet + LEN_ETH);
@@ -231,7 +231,7 @@ void obtener_rtp(u_char *args, const struct pcap_pkthdr *header, const u_char *p
     return;
 }
 
-int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla) {
+int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla, ListControl* igmp, ListControl* udp) {
 
     struct ether_header *eth_header;
     const struct sniff_ip *ip;          /* Cabecera IP */
@@ -241,15 +241,16 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
     const u_char *igmp_header;
     char clave[16];
     char cliente[16];
-    char fichero[20];
-    FILE *fp = NULL;
 
     int ip_header_length;
     uint16_t numSeq;
     unsigned int raw_offset = 2;
 
     NodoHash* nodo = NULL;
+    NodeControl* node = NULL;
     List* lista = NULL;
+    double retA = 0.0;
+    double ret = 0.0;
 
     /* Nos aseguramos que sea un paquete IP */
     eth_header = (struct ether_header *) packet;
@@ -274,89 +275,75 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
 
     // Paquete IGMP
     if (protocolo == IPPROTO_IGMP) {
-        
+        ret = ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec));
         igmp_header = packet + LEN_ETH + ip_header_length;
         // IGMP Report Group
         if( ((*igmp_header) & 0xFF) == 0x16 ){
             nodo = buscarNodoHash(tabla, clave);
-
             //Si el arbol no esta registrado, lo guardamos
             if (nodo == NULL) {
                 insertarNodoHash(tabla, clave, cliente);
+                //Guardamos el paquete IGMP en la lista
+                listControl_insertFirst(igmp, clave, ret, 1);
             } else {
                 lista = nodoGetInfo(nodo);
                 // Si el arbol esta registrado pero el cliente no, lo añadimos
                 if(list_check_element(lista, cliente) == 0){
                     list_insertFirst(lista, cliente);
                 }
+                // Actualizamos el paquete IGMP
+                node = getNode(igmp, clave);
+                setTiempo(node, ret);
+                setInfo(node, 1);
                     
             }
         // IGMP Leave Group
         } else if( ((*igmp_header) & 0xFF) == 0x17 ) {
             nodo = buscarNodoHash(tabla, clave);
-            //Si obtenemos un leave y el arbol no esta registrado, comprobamos el cliente
+            //Si obtenemos un leave y el arbol esta registrado, comprobamos el cliente
             if (nodo != NULL) {
                 lista = nodoGetInfo(nodo);
                 list_extractElement(lista, cliente);
-                // Si no quedan clientes en el arbol, metemos un indicador
+                // Si no quedan clientes en el arbol, indicamos que 
+                // no esperamos paquetes de el
                 if(list_isEmpty(lista) == 1){
-                    sprintf(fichero, "%s_udp.txt", clave);
-                    fp = fopen(fichero, "a");
-                    if (fp == NULL){
-                        printf("Error al abrir el fichero %s.\n", fichero);
-                        return -1;
-                    }
-                    fprintf(fp, "=======\n");
-                    fclose(fp);
+                    node = getNode(igmp, clave);
+                    setTiempo(node, ret);
+                    setInfo(node, 0);
                 }
                 
             }
 
         } else{}
-
-        sprintf(fichero, "%s_igmp.txt", clave);
-        fp = fopen(fichero, "a");
-        if (fp == NULL){
-            printf("Error al abrir el fichero %s.\n", fichero);
-            return -1;
-        }
-        fprintf(fp, "%s", cliente);
-        fprintf(fp, " %s", clave);
-        fprintf(fp, " %d", header->len);
-        fprintf(fp, " %ld\n", ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec)));
-        fclose(fp);
         
     }
     // Caso UDP
     else if (protocolo == IPPROTO_UDP) {
 
-        if (checkNodoHash(tabla, clave) == 0) {
-            sprintf(fichero, "%s_udp.txt", clave);
-            fp = fopen(fichero, "a");
-            if (fp == NULL){
-                printf("Error al abrir el fichero: %s.\n", fichero);
-                return -1;
-            }
+        if ((nodo = buscarNodoHash(tabla, clave)) != NULL) {
+
+            setNumRecibidos(nodo, 1);
+            retA = getLlegadaAnterior(nodo);
+            setLlegadaAnterior(nodo, ret);
+            ret = ret - retA;
+            setRetardo(nodo, ret);
+            setRetardoCuadrado(nodo, (ret*ret));
+            setNumBytes(nodo, header->len);
+            
+            // Actualizamos el paquete UDP
+            ret = ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec));
+            node = getNode(udp, clave);
             rtp_header = packet + LEN_ETH + ip_header_length + LEN_UDP;
             numSeq = rtp_header[raw_offset] * 256 + rtp_header[raw_offset + 1];
-            fprintf(fp, "%s", inet_ntoa(ip->ip_src));
-            fprintf(fp, " %s", clave);
-            fprintf(fp, " %d", numSeq);
-            fprintf(fp, " %d", header->len);
-            fprintf(fp, " %ld\n", ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec)));
-            fclose(fp);
-        } else {
-
-            fp = fopen("ruido.txt", "a");
-            if (fp == NULL){
-                printf("Error al abrir el fichero: %s.\n", fichero);
-                return -1;
+            if(node == NULL){
+                listControl_insertFirst(udp, clave, ret, numSeq);
+            } else {
+                setTiempo(node, ret);
+                setInfo(node, numSeq);
             }
-            fprintf(fp, "%s", inet_ntoa(ip->ip_src));
-            fprintf(fp, " %s", clave);
-            fprintf(fp, " %d", header->len);
-            fprintf(fp, " %ld\n", ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec)));
-            fclose(fp);
+            
+        } else {
+            //Ruido
         }
     }
     else {

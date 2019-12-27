@@ -110,4 +110,19 @@ NodoHash **getAllNodes(TablaHash *tabla);
 * Devuelve: Numero de nodos de la tabla hash
 */
 int getNumNodes(TablaHash *tabla);
+
+int getNumRecibidos(NodoHash* nodo);
+int setNumRecibidos(NodoHash* nodo, int num);
+int getNumPerdidos(NodoHash* nodo);
+int setNumPerdidos(NodoHash* nodo, int num);
+double getRetardo(NodoHash* nodo);
+int setRetardo(NodoHash* nodo, double ret);
+double getRetardoCuadrado(NodoHash* nodo);
+int setRetardoCuadrado(NodoHash* nodo, double ret);
+double getLlegadaAnterior(NodoHash* nodo);
+int setLlegadaAnterior(NodoHash* nodo, double ret);
+int getNumBytes(NodoHash* nodo);
+int setNumBytes(NodoHash* nodo, int num);
+int getNumIgmpErr(NodoHash* nodo);
+int setNumIgmpErr(NodoHash* nodo, int num);
 #endif
