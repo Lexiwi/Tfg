@@ -20,14 +20,14 @@ clean :
 objclean:
 	@rm *.o
 
-$(EXE) : % : %.o analiza.o hash.o list.o listControl.o
+$(EXE) : % : %.o analiza.o hash.o list.o listControl.o ruido.o
 	@echo "#---------------------------"
 	@echo "# Generando $@ "
 	@echo "# Depende de $^"
 	@echo "# Ha cambiado $<"
-	$(CC) $(CFLAGS) -o $@ $@.o analiza.o hash.o list.o listControl.o $(FPCAP)
+	$(CC) $(CFLAGS) -o $@ $@.o analiza.o hash.o list.o listControl.o ruido.o $(FPCAP)
 
-analiza.o : analiza.c analiza.h hash.h listControl.h
+analiza.o : analiza.c analiza.h hash.h listControl.h ruido.h
 	@echo "#---------------------------"
 	@echo "# Generando $@"
 	@echo "# Depende de $^"
@@ -49,6 +49,13 @@ list.o: list.c list.h
 	$(CC) $(FLAGS) -c $<
 
 listControl.o: listControl.c listControl.h
+	@echo "#---------------------------"
+	@echo "# Generando $@"
+	@echo "# Depende de $^"
+	@echo "# Ha cambiado $<"
+	$(CC) $(FLAGS) -c $<
+
+ruido.o: ruido.c ruido.h
 	@echo "#---------------------------"
 	@echo "# Generando $@"
 	@echo "# Depende de $^"

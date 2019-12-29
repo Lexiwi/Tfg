@@ -1,6 +1,7 @@
 #include "analiza.h"
 #include "hash.h"
 #include "listControl.h"
+#include "ruido.h"
 
 pcap_t *handle = NULL;      // Manejador pcap
 
@@ -27,6 +28,7 @@ int main(int argc, char *argv[]) {
     TablaHash* tabla = NULL;
     ListControl* igmp = NULL;
     ListControl* udp = NULL;
+    Ruido* ruido = NULL;
     
 
     while( (opt = getopt(argc, argv, ":OF:lsm::") ) != -1) {
@@ -100,6 +102,7 @@ int main(int argc, char *argv[]) {
             // Creacion de las listas-tablas
             igmp = listControl_ini();
             udp = listControl_ini();
+            ruido = ruido_ini();
             if(tabla == NULL || igmp == NULL || udp == NULL) {
                 printf("Error al crear tabla hash o listControl");
                 return -1;
@@ -113,7 +116,7 @@ int main(int argc, char *argv[]) {
                     continue;
                 }
 
-                if ( leer_paquete(packet_header, packet, tabla, igmp, udp) != 0) {
+                if ( leer_paquete(packet_header, packet, tabla, igmp, udp, ruido) != 0) {
                 }
 
             }
@@ -135,6 +138,7 @@ int main(int argc, char *argv[]) {
         eliminarTablaHash(tabla);
         listControl_free(igmp);
         listControl_free(udp);
+        ruido_free(ruido);
     } 
     else if(accion == 3) {
         pcap_dump_close(pd->dumpfile);

@@ -231,7 +231,7 @@ void obtener_rtp(u_char *args, const struct pcap_pkthdr *header, const u_char *p
     return;
 }
 
-int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla, ListControl* igmp, ListControl* udp) {
+int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla, ListControl* igmp, ListControl* udp, Ruido* ruido) {
 
     struct ether_header *eth_header;
     const struct sniff_ip *ip;          /* Cabecera IP */
@@ -344,6 +344,8 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
             
         } else {
             //Ruido
+            ret = ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec));
+            actualizaRuido(ruido, ret);
         }
     }
     else {
