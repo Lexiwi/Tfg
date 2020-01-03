@@ -399,7 +399,7 @@ int setTiempo(NodeControl* node, double tmp) {
     return 0;
 }
 
-double getInfo(NodeControl* node) {
+int getInfo(NodeControl* node) {
 
     if(node == NULL)
         return -1;

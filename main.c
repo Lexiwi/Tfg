@@ -1,27 +1,41 @@
+#include <pthread.h> 
+#include <semaphore.h>
+#include <unistd.h>
 #include "analiza.h"
 #include "hash.h"
 #include "listControl.h"
 #include "ruido.h"
 
 pcap_t *handle = NULL;      // Manejador pcap
+sem_t mutex;                // Semaforo
+int para = 1;
+
+void* prueba_hilo(void* arg);
 
 void finaliza_monitorizacion(int signum) {
     pcap_breakloop(handle);
 }
 
+void* prueba_hilo(void* arg) {
+
+    while( para == 1 ){
+        sleep(1);
+        sem_wait(&mutex);
+        printf("Hago algo :D\n");
+        sem_post(&mutex);
+    }
+
+}
 
 int main(int argc, char *argv[]) {
 
     //int fHandle = -1;             // 1 - Online | 2 - Fichero
     int accion = -1;                // 1 - Monitoriza | 2 - Calcula QoS | 3 - Genera perdidas
     int opt = -1;                   // Variable para argumentos
+    int res = 0;
     PcapDrop *pd = NULL;            // Estructura para provocar perdidas
-    //bpf_u_int32 ip;
-    //struct bpf_program fp;          // Mantiene la compilación del programa
 
     char filename[100];
-
-    int res = 0;
     const u_char *packet;
     struct pcap_pkthdr *packet_header;
 
@@ -29,7 +43,8 @@ int main(int argc, char *argv[]) {
     ListControl* igmp = NULL;
     ListControl* udp = NULL;
     Ruido* ruido = NULL;
-    
+
+    pthread_t hilo_1 = NULL;
 
     while( (opt = getopt(argc, argv, ":OF:lsm::") ) != -1) {
         switch(opt) {
@@ -108,18 +123,23 @@ int main(int argc, char *argv[]) {
                 return -1;
             }
 
-            //signal(SIGINT, finaliza_monitorizacion);
+            sem_init(&mutex, 0, 1);
+            pthread_create(&hilo_1, NULL, *prueba_hilo, NULL);
+
+            //signal(SIGINT, finaliza_monitorizacion);   <------------- TO DO
             while ((res = pcap_next_ex(handle, &packet_header, &packet)) >= 0) {
 
                 if (res == 0) {
                     /*Sobrepasado timeout*/
                     continue;
                 }
-
+                sem_wait(&mutex);
                 if ( leer_paquete(packet_header, packet, tabla, igmp, udp, ruido) != 0) {
                 }
-
+                sem_post(&mutex);
             }
+            para = 0;
+            pthread_join(hilo_1, NULL);
             printf("Numero total de IPs de IGMP: %d\n", getNumNodes(tabla));
             listControl_print(igmp);
             listControl_print(udp);
@@ -139,6 +159,7 @@ int main(int argc, char *argv[]) {
         listControl_free(igmp);
         listControl_free(udp);
         ruido_free(ruido);
+        sem_destroy(&mutex);
     } 
     else if(accion == 3) {
         pcap_dump_close(pd->dumpfile);

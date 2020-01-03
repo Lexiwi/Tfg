@@ -62,7 +62,7 @@ pcap_t * abrir_captura_offline(char* filename);
 void obtener_trafico_entrante(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 void provoca_perdidas(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla, ListControl* igmp);
-void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla, ListControl* udp, Ruido* ruido);
+void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla, ListControl* igmp, ListControl* udp, Ruido* ruido);
 int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla, ListControl* igmp, ListControl* udp, Ruido* ruido);
 
 #endif

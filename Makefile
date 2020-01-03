@@ -10,6 +10,7 @@ CFLAGS = -Wall
 EXE = main
 RLJ = -lm -lrt
 FPCAP = -lpcap
+HL = -pthread
 
 all : $(EXE) objclean
 
@@ -25,7 +26,7 @@ $(EXE) : % : %.o analiza.o hash.o list.o listControl.o ruido.o
 	@echo "# Generando $@ "
 	@echo "# Depende de $^"
 	@echo "# Ha cambiado $<"
-	$(CC) $(CFLAGS) -o $@ $@.o analiza.o hash.o list.o listControl.o ruido.o $(FPCAP)
+	$(CC) $(CFLAGS) -o $@ $@.o analiza.o hash.o list.o listControl.o ruido.o $(FPCAP) $(HL)
 
 analiza.o : analiza.c analiza.h hash.h listControl.h ruido.h
 	@echo "#---------------------------"
@@ -62,12 +63,12 @@ ruido.o: ruido.c ruido.h
 	@echo "# Ha cambiado $<"
 	$(CC) $(FLAGS) -c $<
 
-main.o : main.c
-	@echo "#---------------------------"
-	@echo "# Generando $@"
-	@echo "# Depende de $^"
-	@echo "# Ha cambiado $<"
-	$(CC) $(CFLAGS) -c $<
+#main.o : main.c
+#	@echo "#---------------------------"
+#	@echo "# Generando $@"
+#	@echo "# Depende de $^"
+#	@echo "# Ha cambiado $<"
+#	$(CC) $(CFLAGS) -c $<
 
 
 

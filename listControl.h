@@ -56,7 +56,7 @@ int listControl_extractElement(ListControl* list, char* ip);
 char* getCanal(NodeControl* node);
 double getTiempo(NodeControl* node);
 int setTiempo(NodeControl* node, double tmp);
-double getInfo(NodeControl* node);
+int getInfo(NodeControl* node);
 int setInfo(NodeControl* node, int inf);
 NodeControl* getNode(ListControl* list, char* canal);
 

@@ -206,7 +206,7 @@ void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaH
     return;
 }
 
-void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla, ListControl* udp, Ruido* ruido) {
+void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla, ListControl* igmp, ListControl* udp, Ruido* ruido) {
 
     double ret = 0.0;
     double retA = 0.0;
@@ -235,6 +235,13 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
     ip_header_length = ip_header_length * 4;
 
     if ((nodo = buscarNodoHash(tabla, clave)) != NULL) {
+
+        // Comprobacion de error IGMP
+        node = getNode(igmp, clave);
+        if( getInfo(node) == 0) {
+            setNumIgmpErr(nodo, 1);
+            return;
+        }
 
         setNumRecibidos(nodo, 1);
         retA = getLlegadaAnterior(nodo);
@@ -287,7 +294,7 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
     }
     // Caso UDP
     else if (protocolo == IPPROTO_UDP) {
-        obtener_rtp(header, packet, tabla, udp, ruido);
+        obtener_rtp(header, packet, tabla, igmp, udp, ruido);
     }
     else {
         printf("Ni IGMP ni UDP\n");
