@@ -59,5 +59,6 @@ int setTiempo(NodeControl* node, double tmp);
 int getInfo(NodeControl* node);
 int setInfo(NodeControl* node, int inf);
 NodeControl* getNode(ListControl* list, char* canal);
+NodeControl* getNodePos(ListControl* list, int pos);
 
 #endif /*LIST_H*/

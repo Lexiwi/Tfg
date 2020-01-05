@@ -10,7 +10,12 @@ pcap_t *handle = NULL;      // Manejador pcap
 sem_t mutex;                // Semaforo
 int para = 1;
 
+TablaHash* tabla = NULL;
+ListControl* igmp = NULL;
+ListControl* udp = NULL;
+
 void* prueba_hilo(void* arg);
+void finaliza_monitorizacion(int signum);
 
 void finaliza_monitorizacion(int signum) {
     pcap_breakloop(handle);
@@ -21,10 +26,10 @@ void* prueba_hilo(void* arg) {
     while( para == 1 ){
         sleep(1);
         sem_wait(&mutex);
-        printf("Hago algo :D\n");
+        errorIgmp(tabla, igmp, udp);
         sem_post(&mutex);
     }
-
+    return NULL;
 }
 
 int main(int argc, char *argv[]) {
@@ -39,12 +44,9 @@ int main(int argc, char *argv[]) {
     const u_char *packet;
     struct pcap_pkthdr *packet_header;
 
-    TablaHash* tabla = NULL;
-    ListControl* igmp = NULL;
-    ListControl* udp = NULL;
     Ruido* ruido = NULL;
 
-    pthread_t hilo_1 = NULL;
+    pthread_t hilo_1;
 
     while( (opt = getopt(argc, argv, ":OF:lsm::") ) != -1) {
         switch(opt) {

@@ -444,3 +444,29 @@ NodeControl* getNode(ListControl* list, char* canal) {
     return 0;
 
 }
+
+NodeControl* getNodePos(ListControl* list, int pos) {
+
+    NodeControl *pn =NULL;
+    NodeControl *pa =NULL;
+    int i = 0;
+
+    if(!list || listControl_isEmpty(list)==1)
+        return NULL;
+    
+    pn=node(list);
+
+    if(pos == 0)
+        return pn;
+
+    while(i < pos) {
+
+        pa = pn;
+        pn = next(pa);
+        if(pn == NULL)
+            return NULL;
+        i++;
+    }
+    
+    return pn;
+}

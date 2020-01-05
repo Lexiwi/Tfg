@@ -266,6 +266,8 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
         //Ruido
         actualizaRuido(ruido, ret);
     }
+
+    return;
 }
 
 int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla, ListControl* igmp, ListControl* udp, Ruido* ruido) {
@@ -302,4 +304,36 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
 
     
     return 0;
+}
+
+void errorIgmp(TablaHash* tabla, ListControl* igmp, ListControl* udp) {
+
+    int size = 0;
+    int i = 0;
+    double tmpUDP, tmpIGMP = 0.0;
+    char* clave = NULL;
+    NodeControl* nodeIGMP = NULL;
+    NodeControl* nodeUDP = NULL;
+    NodoHash* nodo = NULL;
+
+    if(tabla == NULL || igmp == NULL || udp == NULL)
+        return;
+
+    size = listControl_size(igmp);
+    for(i = 0; i < size; i++) {
+        
+        nodeIGMP = getNodePos(igmp, i);
+        if(nodeIGMP != NULL){
+            clave = getCanal(nodeIGMP);
+            nodeUDP = getNode(udp, clave);
+            tmpUDP = getTiempo(nodeUDP);
+            tmpIGMP = getTiempo(nodeIGMP);
+            //Supongo que seria mas 15s ya que es cuando se envia un paquete
+            if(tmpUDP > tmpIGMP + 15000.0){
+                nodo = buscarNodoHash(tabla, clave);
+                setNumIgmpErr(nodo, 1);
+            }
+        }
+
+    }
 }
