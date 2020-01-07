@@ -44,7 +44,7 @@ int list_isEmpty(const List* list);
 int list_size(const List* list);
 
 /* Imprime una lista devolviendo el número de caracteres escritos. */
-int list_print(FILE *fd, const List* list);
+int list_print(const List* list);
 
 /* Comprueba si el elemento esta en la lista. */
 int list_check_element(const List* list, char* ip);

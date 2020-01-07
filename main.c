@@ -143,6 +143,7 @@ int main(int argc, char *argv[]) {
             para = 0;
             pthread_join(hilo_1, NULL);
             printf("Numero total de IPs de IGMP: %d\n", getNumNodes(tabla));
+            printTablaHash(tabla);
             listControl_print(igmp);
             listControl_print(udp);
             break;

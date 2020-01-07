@@ -11,7 +11,6 @@
 
 #define MAX_CLAVE 100	  /* Maximo del string clave */
 #define MAX_HASH_RET 100  /* Tamaño maximo de nodos que caben en la tabla hash */
-#define TAM_HASH  50      /* Tamaño maximo de la tabla Hash*/
 
 /**
 * Estructura para un nodo hash
@@ -98,13 +97,6 @@ List* nodoGetInfo(NodoHash* nodo);
 NodoHash **getAllNodes(TablaHash *tabla);
 
 /**
-*  Devuelve el contenido de los nodos contenidos en la tabla hash
-* Parametro: Tabla hash
-* Devuelve: Lista del contenido de los nodos de la tabla hash
-*/
-//void **getAllNodesInfo(TablaHash *tabla);
-
-/**
 *  Devuelve el numero de nodos contenidos en la tabla hash y sus sublistas
 * Parametro: Tabla hash
 * Devuelve: Numero de nodos de la tabla hash
@@ -125,4 +117,5 @@ int getNumBytes(NodoHash* nodo);
 int setNumBytes(NodoHash* nodo, int num);
 int getNumIgmpErr(NodoHash* nodo);
 int setNumIgmpErr(NodoHash* nodo, int num);
+void printTablaHash(TablaHash *tabla);
 #endif

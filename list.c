@@ -276,24 +276,25 @@ int list_size(const List* list){
             List *: Puntero a la lista a imprimir.
  * @Output: int: Número de caracteres impresos.
 ------------------------------------------------------------------------*/
-int list_print(FILE *fd, const List* list){
+int list_print(const List* list){
     Node *pn;
     int contador, aux;
-    if(!fd || !list)
+    if(!list)
         return -1;
     
-    fprintf(fd, "\nLista con %d elementos:\n", list_size(list));
+    //fprintf(fd, "\nLista con %d elementos:\n", list_size(list));
     if(list_isEmpty(list))
         return 0;
     
     pn=node(list);
     
     while(pn!=NULL){
-        fprintf(fd, "%s", data(pn));
-        fprintf(fd,"\n");
+        fprintf(stdout, "%s", data(pn));
+        //fprintf(stdout,"\n");
         contador+=(aux+1);
         pn=next(pn);
     }
+    fprintf(stdout,"\n");
     return contador;
 }
 

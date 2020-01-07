@@ -228,30 +228,6 @@ NodoHash **getAllNodes(TablaHash *tabla) {
     return ret;
 }
 
-/*void **getAllNodesInfo(TablaHash *tabla) {
-    void **ret = NULL;
-    NodoHash **nodos = NULL;
-    int num, i;
-    if(tabla == NULL)
-        return NULL;
-    ret = (void**) malloc(sizeof(void*)*MAX_HASH_RET);
-    if(ret == NULL)
-        return NULL;
-    num = getNumNodes(tabla);
-    nodos = getAllNodes(tabla);
-    if(nodos == NULL) {
-        free(ret);
-        return NULL;
-    }
-    for(i = 0; i < num && nodos[i] != NULL; i++)
-        ret[i] = nodos[i]->info;
-    while(i < MAX_HASH_RET) {
-        ret[i] = NULL;
-        i++;
-    }
-    return ret;
-}*/
-
 int getNumNodes(TablaHash *tabla) {
     NodoHash *aux = NULL;
     int i, j;
@@ -354,7 +330,7 @@ int setLlegadaAnterior(NodoHash* nodo, double ret) {
 	if (nodo == NULL)
 		return -1;
 
-    nodo->retAnterior = nodo->retAnterior + ret;
+    nodo->retAnterior = ret;
 	return 0;
 }
 
@@ -391,3 +367,40 @@ int setNumIgmpErr(NodoHash* nodo, int num) {
     nodo->igmpErr = nodo->igmpErr + num;
     return 0;
 }
+
+void printTablaHash(TablaHash *tabla) {
+
+	NodoHash* aux = NULL;
+	int i = 0;
+
+	if(tabla == NULL)
+		return;
+
+	for(i = 0; i < tabla->tam; i++) {
+
+		if(tabla->nodos[i] != NULL){
+
+			aux = tabla->nodos[i];
+			while(aux != NULL){
+			//for (aux = tabla->nodos[i]; aux->siguiente != NULL; aux = aux->siguiente) {
+
+				fprintf(stdout, "******** %s ********\n\n", aux->clave);
+				fprintf(stdout, "Clientes:");
+				list_print(aux->lista);
+				fprintf(stdout, "Paquetes recibidos: %d\n", aux->paqRec);
+				fprintf(stdout, "Paquetes perdidos: %d\n", aux->paqPer);
+				fprintf(stdout, "Retardo total: %f\n", aux->ret);
+				fprintf(stdout, "Retardo cuadrado: %f\n", aux->retCuadrado);
+				fprintf(stdout, "Bytes totales: %d\n", aux->bytes);
+				fprintf(stdout, "Errores IGMP totales: %d\n", aux->igmpErr);
+				fprintf(stdout, "\n\n\n");
+
+				aux = aux->siguiente;
+			}
+		}
+
+	}
+
+	return;
+
+} 
