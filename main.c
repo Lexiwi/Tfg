@@ -146,6 +146,7 @@ int main(int argc, char *argv[]) {
             printTablaHash(tabla);
             listControl_print(igmp);
             listControl_print(udp);
+            ruido_print(ruido);
             break;
 
         case 3:

@@ -81,6 +81,17 @@ int actualizaRuido(Ruido* ruido, double tmp) {
     ruido->count++;
     return 0;
 }
+
+void ruido_print(Ruido* ruido) {
+
+    if(!ruido)
+        return;
+    
+    printf("\nNumero de paquetes: %d\n", ruido->count);
+    printf("Ultimo paquete recibido a: %f (ms)\n", ruido->tiempo);
+
+    return;
+}
  
 
  

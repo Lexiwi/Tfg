@@ -225,6 +225,7 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
     strcpy(clave, inet_ntoa(ip->ip_dst));
     strcpy(cliente, inet_ntoa(ip->ip_src));
 
+    //Microsegundos
     ret = ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec));
 
     /* Nos colocamos al principio de la cabecera IP */
@@ -329,7 +330,8 @@ void errorIgmp(TablaHash* tabla, ListControl* igmp, ListControl* udp) {
             tmpUDP = getTiempo(nodeUDP);
             tmpIGMP = getTiempo(nodeIGMP);
             //Supongo que seria mas 15s ya que es cuando se envia un paquete
-            if(tmpUDP > tmpIGMP + 15000.0){
+            if(tmpUDP > tmpIGMP + 15000000.0){
+                printf("UwU\n");
                 nodo = buscarNodoHash(tabla, clave);
                 setNumIgmpErr(nodo, 1);
             }
