@@ -260,6 +260,9 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
             listControl_insertFirst(udp, clave, ret, numSeq);
         } else {
             setTiempo(node, ret);
+            //Comprobación de paquetes perdidos
+            if(numSeq - getInfo(node) > 1)
+                setNumPerdidos(nodo, 1);
             setInfo(node, numSeq);
         }
         
@@ -329,9 +332,10 @@ void errorIgmp(TablaHash* tabla, ListControl* igmp, ListControl* udp) {
             nodeUDP = getNode(udp, clave);
             tmpUDP = getTiempo(nodeUDP);
             tmpIGMP = getTiempo(nodeIGMP);
-            //Supongo que seria mas 15s ya que es cuando se envia un paquete
-            if(tmpUDP > tmpIGMP + 15000000.0){
-                printf("UwU\n");
+            //Supongo que seria mas 5ms ya que es cuando se envia un paquete
+            //if(tmpUDP > tmpIGMP + 5000.0){
+            if(tmpUDP < tmpIGMP && nodeUDP != NULL){
+                //printf("Error: UDP: %f\n       IGMP: %f\n", tmpUDP, tmpIGMP);
                 nodo = buscarNodoHash(tabla, clave);
                 setNumIgmpErr(nodo, 1);
             }
