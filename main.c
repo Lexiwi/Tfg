@@ -46,6 +46,8 @@ int main(int argc, char *argv[]) {
 
     Ruido* ruido = NULL;
 
+    //TablaHash* coso = NULL;
+
     pthread_t hilo_1;
 
     while( (opt = getopt(argc, argv, ":OF:lsm::") ) != -1) {
@@ -142,11 +144,17 @@ int main(int argc, char *argv[]) {
             }
             para = 0;
             pthread_join(hilo_1, NULL);
-            printf("Numero total de IPs de IGMP: %d\n", getNumNodes(tabla));
+            //printf("Numero total de IPs de IGMP: %d\n", getNumNodes(tabla));
             printTablaHash(tabla);
-            listControl_print(igmp);
-            listControl_print(udp);
-            ruido_print(ruido);
+            //listControl_print(igmp);
+            //listControl_print(udp);
+            //ruido_print(ruido);
+            ////////////////////
+            //coso = crearTablaHash(30);
+            //copiarTablaHash(tabla, coso);
+            //printTablaHash(coso);
+            //eliminarTablaHash(coso);
+            //////////////7////
             break;
 
         case 3:

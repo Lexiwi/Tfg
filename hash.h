@@ -10,7 +10,7 @@
 #define ERROR -1		  /* ERROR */
 
 #define MAX_CLAVE 100	  /* Maximo del string clave */
-#define MAX_HASH_RET 100  /* Tamaño maximo de nodos que caben en la tabla hash */
+#define MAX_HASH_RET 30  /* Tamaño maximo de nodos que caben en la tabla hash */
 
 /**
 * Estructura para un nodo hash
@@ -53,7 +53,7 @@ int funcionHash(TablaHash* tabla, char *clave);
 * Parametro: info. Informacion a guardar en el nodo
 * Devuelve: NodoHash creado
 */
-NodoHash* crearNodoHash(char *clave, void *info);
+NodoHash* crearNodoHash(char *clave);
 
 /**
 *  Inserta en la tabla hash un nodo en un indice calculado por funcionHash
@@ -82,12 +82,6 @@ NodoHash* buscarNodoHash(TablaHash *tabla, char *clave);
 
 int checkNodoHash(TablaHash *tabla, char *clave);
 
-/**
-*  Devuelve la info de un nodo
-* Parametro: nodo. Nodo Hash
-* Devuelve: Informacion del nodo
-*/
-List* nodoGetInfo(NodoHash* nodo);
 
 /**
 *  Devuelve todos los nodos contenidos en la tabla hash y sus sublistas
@@ -102,6 +96,15 @@ NodoHash **getAllNodes(TablaHash *tabla);
 * Devuelve: Numero de nodos de la tabla hash
 */
 int getNumNodes(TablaHash *tabla);
+
+/**
+*  Devuelve la info de un nodo
+* Parametro: nodo. Nodo Hash
+* Devuelve: Informacion del nodo
+*/
+List* nodoGetInfo(NodoHash* nodo);
+
+char* getClave(NodoHash* nodo);
 
 int getNumRecibidos(NodoHash* nodo);
 int setNumRecibidos(NodoHash* nodo, int num);
@@ -118,4 +121,6 @@ int setNumBytes(NodoHash* nodo, int num);
 int getNumIgmpErr(NodoHash* nodo);
 int setNumIgmpErr(NodoHash* nodo, int num);
 void printTablaHash(TablaHash *tabla);
+int copiarTablaHash(TablaHash *tabla1, TablaHash *tabla2);
+NodoHash* copiarNodoHash(NodoHash *nodo);
 #endif

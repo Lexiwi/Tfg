@@ -52,4 +52,7 @@ int list_check_element(const List* list, char* ip);
 /* Eliminamos un elemento de la lista*/
 int list_extractElement(List* list, char* ip);
 
+/* Copiamos la lista 1 en la lista 2*/
+int list_copy(List* list1, List* list2);
+
 #endif /*LIST_H*/

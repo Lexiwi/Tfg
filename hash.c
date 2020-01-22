@@ -99,7 +99,8 @@ int funcionHash(TablaHash* tabla, char *clave) {
 	return strlen(clave) % tabla->tam;
 }
 
-NodoHash* crearNodoHash(char *clave, void *info) {
+//NodoHash* crearNodoHash(char *clave, void *info) {
+NodoHash* crearNodoHash(char *clave) {
 	NodoHash* nodo =  NULL;
 
 	nodo = (NodoHash*) malloc(sizeof(NodoHash));
@@ -133,7 +134,8 @@ int insertarNodoHash(TablaHash *tabla, char *clave, void *info) {
 	if(tabla == NULL || clave == NULL || info == NULL)
 		return ERROR;
 
-	nodo = crearNodoHash(clave, info);
+	//nodo = crearNodoHash(clave, info);
+	nodo = crearNodoHash(clave);
 	list_insertFirst(nodo->lista, (char*)info);
 	pos = funcionHash(tabla, clave);
 
@@ -192,10 +194,6 @@ int checkNodoHash(TablaHash *tabla, char *clave) {
 	return OK;
 }
 
-List* nodoGetInfo(NodoHash* nodo) {
-	return nodo->lista;
-}
-
 NodoHash **getAllNodes(TablaHash *tabla) {
     NodoHash **ret = NULL, *aux = NULL;
     int i, count = 0;
@@ -247,6 +245,19 @@ int getNumNodes(TablaHash *tabla) {
         }
 
     return j;
+}
+
+
+List* nodoGetInfo(NodoHash* nodo) {
+	return nodo->lista;
+}
+
+char* getClave(NodoHash* nodo) {
+	
+	if(nodo == NULL)
+		return NULL;
+
+	return nodo->clave;
 }
 
 int getNumRecibidos(NodoHash* nodo) {
@@ -403,4 +414,51 @@ void printTablaHash(TablaHash *tabla) {
 
 	return;
 
-} 
+}
+
+int copiarTablaHash(TablaHash *tabla1, TablaHash *tabla2) {
+
+	int i;
+
+	if(tabla1 == NULL || tabla2 == NULL)
+		return -1;
+
+	for(i = 0; i < MAX_HASH_RET; i++){
+
+		tabla2->nodos[i] = copiarNodoHash(tabla1->nodos[i]);
+	}
+
+	return 0;
+}
+
+NodoHash* copiarNodoHash(NodoHash *nodo) {
+
+	char* clave = NULL;
+	NodoHash *aux = NULL;
+
+	if( nodo == NULL )
+		return NULL;
+
+	clave = getClave(nodo);
+	if(clave == NULL)
+		return NULL;
+
+	aux = crearNodoHash(clave);
+	if(aux == NULL)
+		return NULL;
+	
+	if(list_copy(nodoGetInfo(nodo), nodoGetInfo(aux)) == 0)
+		return NULL;
+
+	aux->paqRec = nodo->paqRec;					
+	aux->paqPer = nodo->paqPer;
+	aux->ret = nodo->ret;
+	aux->retCuadrado = nodo->retCuadrado;
+	aux->retAnterior = nodo->retAnterior;
+	aux->bytes = nodo->bytes;
+	aux->igmpErr = nodo->igmpErr;
+
+	aux->siguiente = copiarNodoHash(nodo->siguiente);
+	
+	return aux;
+}

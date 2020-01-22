@@ -363,3 +363,23 @@ int list_extractElement(List* list, char* ip){
     
     return 0;
 }
+
+int list_copy(List* list1, List* list2) {
+
+    Node *pn =NULL;
+    Node *pa =NULL;
+    //char *pe = NULL;
+
+    if(list1 == NULL || list2 == NULL)
+        return 0;
+
+    pn = node(list1);
+    while(pn != NULL){
+        if(list_insertFirst(list2, data(pn)) == NULL)
+            return 0;
+        pa = pn;
+        pn = next(pa);
+    }
+
+    return 1;
+}
