@@ -379,6 +379,14 @@ int setNumIgmpErr(NodoHash* nodo, int num) {
     return 0;
 }
 
+NodoHash* getSiguiente(NodoHash *nodo) {
+
+	if (nodo == NULL)
+		return NULL;
+
+	return nodo->siguiente;
+}
+
 void printTablaHash(TablaHash *tabla) {
 
 	NodoHash* aux = NULL;

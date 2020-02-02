@@ -335,7 +335,6 @@ void errorIgmp(TablaHash* tabla, ListControl* igmp, ListControl* udp) {
             //Supongo que seria mas 5ms ya que es cuando se envia un paquete
             //if(tmpUDP > tmpIGMP + 5000.0){
             if(tmpUDP < tmpIGMP && nodeUDP != NULL){
-                //printf("Error: UDP: %f\n       IGMP: %f\n", tmpUDP, tmpIGMP);
                 nodo = buscarNodoHash(tabla, clave);
                 setNumIgmpErr(nodo, 1);
             }
@@ -343,3 +342,43 @@ void errorIgmp(TablaHash* tabla, ListControl* igmp, ListControl* udp) {
 
     }
 }
+
+void volcarTabla(sqlite3 *db, TablaHash* tabla, ListControl* igmp, ListControl* udp, Ruido* ruido) {
+
+    int i;
+    int rc = 0;
+    char *err_msg = 0;
+    char sql[500];
+
+    NodoHash* aux = NULL;
+
+    if(tabla == NULL || igmp == NULL || udp == NULL || ruido == NULL)
+        return;
+
+    for(i = 0; i < tabla->tam; i++) {
+
+		if(tabla->nodos[i] != NULL){
+
+			aux = tabla->nodos[i];
+			while(aux != NULL){
+
+				sprintf(sql, "\"INSERT INTO Canales(Ip, Tiempo, NumPaq, NumPer, Ret, RetC, NumErr, Bytes) VALUES(%s, %f, %d, %d, %f, %f, %d, %d);\"",
+                    getClave(aux), getLlegadaAnterior(aux),  getNumRecibidos(aux), getNumPerdidos(aux), 
+                    getRetardo(aux), getRetardoCuadrado(aux), getNumIgmpErr(aux), getNumBytes(aux));
+                rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
+                if (rc != SQLITE_OK ) {
+                    fprintf(stderr, "SQL error: %s\n", err_msg);
+                    sqlite3_free(err_msg);        
+                    return;
+                }
+                sqlite3_free(err_msg);
+                memset(sql, 0, sizeof(sql));
+				aux = getSiguiente(aux);
+			}
+		}
+
+	}
+    return;
+    
+}
+

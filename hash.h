@@ -120,6 +120,7 @@ int getNumBytes(NodoHash* nodo);
 int setNumBytes(NodoHash* nodo, int num);
 int getNumIgmpErr(NodoHash* nodo);
 int setNumIgmpErr(NodoHash* nodo, int num);
+NodoHash* getSiguiente(NodoHash *nodo);
 void printTablaHash(TablaHash *tabla);
 int copiarTablaHash(TablaHash *tabla1, TablaHash *tabla2);
 NodoHash* copiarNodoHash(NodoHash *nodo);

@@ -11,6 +11,7 @@ EXE = main
 RLJ = -lm -lrt
 FPCAP = -lpcap
 HL = -pthread
+DB = -lsqlite3
 
 all : $(EXE) objclean
 
@@ -26,14 +27,14 @@ $(EXE) : % : %.o analiza.o hash.o list.o listControl.o ruido.o
 	@echo "# Generando $@ "
 	@echo "# Depende de $^"
 	@echo "# Ha cambiado $<"
-	$(CC) $(CFLAGS) -o $@ $@.o analiza.o hash.o list.o listControl.o ruido.o $(FPCAP) $(HL)
+	$(CC) $(CFLAGS) -o $@ $@.o analiza.o hash.o list.o listControl.o ruido.o $(FPCAP) $(HL) $(DB)
 
 analiza.o : analiza.c analiza.h hash.h listControl.h ruido.h
 	@echo "#---------------------------"
 	@echo "# Generando $@"
 	@echo "# Depende de $^"
 	@echo "# Ha cambiado $<"
-	$(CC) $(CFLAGS) -c $< $(FPCAP)
+	$(CC) $(CFLAGS) -c $< $(FPCAP) $(DB)
 
 hash.o : hash.c hash.h list.h
 	@echo "#---------------------------"

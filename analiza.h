@@ -12,6 +12,7 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <time.h>
+#include <sqlite3.h>
 #include "hash.h"
 #include "listControl.h"
 #include "ruido.h"
@@ -28,8 +29,14 @@
 #define LEN_UDP 8
 #define RAW_OFF 2
 #define DROP_FILE_NAME "file_drop"
-#define FILTER_IGMP "igmp"
-#define FILTER_RTP "udp and dst"
+
+#define DROP_TABLE_CANALES "DROP TABLE IF EXISTS Canales;"
+#define DROP_TABLE_IGMP "DROP TABLE IF EXISTS Igmp;"
+#define DROP_TABLE_RUIDO "DROP TABLE IF EXISTS Ruido;"
+
+#define CREATE_TABLE_CANALES "CREATE TABLE 'Canales' ( 'Tiempo'	REAL NOT NULL, 'NumPaq'	INTEGER NOT NULL, 'NumPer'	INTEGER NOT NULL, 'Ret'	REAL NOT NULL, 'RetC'	REAL NOT NULL, 'NumErr'	INTEGER NOT NULL, 'Bytes'	INTEGER NOT NULL, PRIMARY KEY('Tiempo'));"
+#define CREATE_TABLE_IGMP "CREATE TABLE 'Igmp' ( 'Tiempo'	REAL NOT NULL, 'Canal'	TEXT NOT NULL, 'Usuario'	TEXT NOT NULL, PRIMARY KEY('Tiempo'));"
+#define CREATE_TABLE_RUIDO "CREATE TABLE 'Ruido' ( 'Tiempo`	REAL NOT NULL, 'Paq'	INTEGER NOT NULL, PRIMARY KEY('Tiempo'));"
 
 struct sniff_ip {
     u_char ip_vhl;		/* version << 4 | header length >> 2 */
@@ -65,5 +72,6 @@ void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaH
 void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla, ListControl* igmp, ListControl* udp, Ruido* ruido);
 int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla, ListControl* igmp, ListControl* udp, Ruido* ruido);
 void errorIgmp(TablaHash* tabla, ListControl* igmp, ListControl* udp);
+void volcarTabla(sqlite3 *db, TablaHash* tabla, ListControl* igmp, ListControl* udp, Ruido* ruido);
 
 #endif
