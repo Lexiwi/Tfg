@@ -6,6 +6,7 @@
 #include "hash.h"
 #include "listControl.h"
 #include "ruido.h"
+#include "bdLite.h"
 
 pcap_t *handle = NULL;      // Manejador pcap
 sem_t mutex;                // Semaforo
@@ -62,12 +63,6 @@ int main(int argc, char *argv[]) {
     int res = 0;
     int rc = 0;
     char filename[100];
-    char *drop = "DROP TABLE IF EXISTS Canales;"
-                 "DROP TABLE IF EXISTS Igmp;"
-                 "DROP TABLE IF EXISTS Ruido;"
-                 "CREATE TABLE 'Canales' ('Ip' TEXT NOT NULL,'Tiempo' REAL NOT NULL,'NumPaq' INTEGER NOT NULL,'NumPer' INTEGER NOT NULL,'Ret' REAL NOT NULL,'RetC' REAL NOT NULL,'NumErr' INTEGER NOT NULL,'Bytes' INTEGER NOT NULL, PRIMARY KEY('Ip','Tiempo'));"
-                 "CREATE TABLE 'Igmp' ('Id'	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, 'Canal'	TEXT NOT NULL, 'Tiempo'	REAL NOT NULL,'Usuario'	TEXT NOT NULL);"
-                 "CREATE TABLE 'Ruido' ('Tiempo' REAL NOT NULL, 'Num' INTEGER NOT NULL, PRIMARY KEY('Tiempo'));";
     
     const u_char *packet;
     struct pcap_pkthdr *packet_header;
@@ -145,7 +140,6 @@ int main(int argc, char *argv[]) {
         
         case 2:
 
-            
             // Creacion de la tabla
 	        tabla = crearTablaHash(30);
             // Creacion de las listas-tablas
@@ -159,16 +153,12 @@ int main(int argc, char *argv[]) {
             }
             if (rc != SQLITE_OK) {
                 fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
-                sqlite3_close(db);
-                return -1;
+                break;
             }
-            rc = sqlite3_exec(db, drop, 0, 0, NULL);
-            if (rc != SQLITE_OK ) {
-                fprintf(stderr, "SQL error eliminando tablas\n");  
-                sqlite3_close(db);
-                return -1;
-            }
-
+            
+            if(reseteaDB(db) != 0)
+                break;
+            
             sem_init(&mutex, 0, 1);
             pthread_create(&hilo_1, NULL, *hilo_errIGMP, NULL);
             pthread_create(&hilo_2, NULL, *hilo_baseDatos, NULL);
@@ -194,30 +184,26 @@ int main(int argc, char *argv[]) {
             //gettimeofday(&t_fin, NULL);
             //printf("%.16g milliseconds\n", ((double)(t_fin.tv_sec + (double)t_fin.tv_usec/1000000) - (double)(t_ini.tv_sec + (double)t_ini.tv_usec/1000000)) * 1000.0);
             //////////////7////
+            eliminarTablaHash(tabla);
+            listControl_free(igmp);
+            listControl_free(udp);
+            ruido_free(ruido);
+            sqlite3_close(db);
+            sem_destroy(&mutex);
             break;
 
         case 3:
             signal(SIGINT, finaliza_monitorizacion);
             pcap_loop(handle, 2, provoca_perdidas, (u_char*)pd);
+
+            pcap_dump_close(pd->dumpfile);
+            free(pd);
             break;
 
         default:
             break;
     }
-
-    if(accion == 2){
-        
-        eliminarTablaHash(tabla);
-        listControl_free(igmp);
-        listControl_free(udp);
-        ruido_free(ruido);
-        sqlite3_close(db);
-        sem_destroy(&mutex);
-    } 
-    else if(accion == 3) {
-        pcap_dump_close(pd->dumpfile);
-        free(pd);
-    } else {}
+    
     pcap_close(handle);
     return 0;
 }

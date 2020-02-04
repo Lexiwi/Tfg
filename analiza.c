@@ -362,7 +362,7 @@ void volcarTabla(sqlite3 *db, TablaHash* tabla, ListControl* igmp, ListControl* 
 			aux = tabla->nodos[i];
 			while(aux != NULL){
 
-				sprintf(sql, "\"INSERT INTO Canales(Ip, Tiempo, NumPaq, NumPer, Ret, RetC, NumErr, Bytes) VALUES(%s, %f, %d, %d, %f, %f, %d, %d);\"",
+				sprintf(sql, "\"INSERT INTO Canales(Ip, Tiempo, NumPaq, NumPer, Ret, RetC, NumErr, Bytes) VALUES(\'%s\', %f, %d, %d, %f, %f, %d, %d);\"",
                     getClave(aux), getLlegadaAnterior(aux),  getNumRecibidos(aux), getNumPerdidos(aux), 
                     getRetardo(aux), getRetardoCuadrado(aux), getNumIgmpErr(aux), getNumBytes(aux));
                 rc = sqlite3_exec(db, sql, 0, 0, &err_msg);

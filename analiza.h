@@ -30,14 +30,6 @@
 #define RAW_OFF 2
 #define DROP_FILE_NAME "file_drop"
 
-#define DROP_TABLE_CANALES "DROP TABLE IF EXISTS Canales;"
-#define DROP_TABLE_IGMP "DROP TABLE IF EXISTS Igmp;"
-#define DROP_TABLE_RUIDO "DROP TABLE IF EXISTS Ruido;"
-
-#define CREATE_TABLE_CANALES "CREATE TABLE 'Canales' ( 'Tiempo'	REAL NOT NULL, 'NumPaq'	INTEGER NOT NULL, 'NumPer'	INTEGER NOT NULL, 'Ret'	REAL NOT NULL, 'RetC'	REAL NOT NULL, 'NumErr'	INTEGER NOT NULL, 'Bytes'	INTEGER NOT NULL, PRIMARY KEY('Tiempo'));"
-#define CREATE_TABLE_IGMP "CREATE TABLE 'Igmp' ( 'Tiempo'	REAL NOT NULL, 'Canal'	TEXT NOT NULL, 'Usuario'	TEXT NOT NULL, PRIMARY KEY('Tiempo'));"
-#define CREATE_TABLE_RUIDO "CREATE TABLE 'Ruido' ( 'Tiempo`	REAL NOT NULL, 'Paq'	INTEGER NOT NULL, PRIMARY KEY('Tiempo'));"
-
 struct sniff_ip {
     u_char ip_vhl;		/* version << 4 | header length >> 2 */
     u_char ip_tos;		/* type of service */

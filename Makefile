@@ -1,8 +1,3 @@
-#-----------------------
-# IMPORTANTE: Los valores de los parametros de los ejercicio?_test deben ajustarse.
-# Se asume que los ficheros fuente se llaman ejercicio1.c, ejercicio2.c,...,ordenar.h
-#-----------------------
-
 #No hay -ansi por: /usr/include/pcap/bpf.h:89:9: error: unknown type name ‘u_int’
 
 CC = gcc -pedantic -g
@@ -22,14 +17,14 @@ clean :
 objclean:
 	@rm *.o
 
-$(EXE) : % : %.o analiza.o hash.o list.o listControl.o ruido.o
+$(EXE) : % : %.o analiza.o hash.o list.o listControl.o ruido.o bdLite.o
 	@echo "#---------------------------"
 	@echo "# Generando $@ "
 	@echo "# Depende de $^"
 	@echo "# Ha cambiado $<"
-	$(CC) $(CFLAGS) -o $@ $@.o analiza.o hash.o list.o listControl.o ruido.o $(FPCAP) $(HL) $(DB)
+	$(CC) $(CFLAGS) -o $@ $@.o analiza.o hash.o list.o listControl.o ruido.o bdLite.o $(FPCAP) $(HL) $(DB)
 
-analiza.o : analiza.c analiza.h hash.h listControl.h ruido.h
+analiza.o : analiza.c analiza.h hash.h listControl.h ruido.h bdLite.h
 	@echo "#---------------------------"
 	@echo "# Generando $@"
 	@echo "# Depende de $^"
@@ -63,6 +58,13 @@ ruido.o: ruido.c ruido.h
 	@echo "# Depende de $^"
 	@echo "# Ha cambiado $<"
 	$(CC) $(FLAGS) -c $<
+
+bdLite.o: bdLite.c bdLite.h
+	@echo "#---------------------------"
+	@echo "# Generando $@"
+	@echo "# Depende de $^"
+	@echo "# Ha cambiado $<"
+	$(CC) $(FLAGS) -c $< $(DB)
 
 #main.o : main.c
 #	@echo "#---------------------------"

@@ -470,3 +470,32 @@ NodeControl* getNodePos(ListControl* list, int pos) {
     
     return pn;
 }
+
+ListControl* ListControl_copy(const ListControl* list) {
+
+    NodeControl *pn =NULL;
+    NodeControl *pa =NULL;
+    ListControl* aux = NULL;
+
+    if(list == NULL)
+        return NULL;
+
+    
+    aux = listControl_ini();
+    if(aux == NULL)
+        return NULL;
+
+    
+    pn = node(list);
+    while(pn != NULL) {
+
+        if((aux = listControl_insertFirst(aux, canal(pn), tiempo(pn), info(pn))) == NULL) {
+            fprintf(sdterr, "Error al copiar en ListControl_copy");
+            return NULL;
+        }
+        pa = pn;
+        pn = next(pa);
+            
+    }
+    return aux;
+}
