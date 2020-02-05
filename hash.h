@@ -122,6 +122,6 @@ int getNumIgmpErr(NodoHash* nodo);
 int setNumIgmpErr(NodoHash* nodo, int num);
 NodoHash* getSiguiente(NodoHash *nodo);
 void printTablaHash(TablaHash *tabla);
-TablaHash* copiarTablaHash(TablaHash *tabla1);
+TablaHash* copiarTablaHash(const TablaHash *tabla1);
 NodoHash* copiarNodoHash(NodoHash *nodo);
 #endif

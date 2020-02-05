@@ -12,7 +12,7 @@ all : $(EXE) objclean
 
 .PHONY : clean
 clean :
-	rm -f *.o *.txt core $(EXE)
+	rm -f *.o *.txt core *.db $(EXE)
 
 objclean:
 	@rm *.o

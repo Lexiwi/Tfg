@@ -424,7 +424,7 @@ void printTablaHash(TablaHash *tabla) {
 
 }
 
-TablaHash* copiarTablaHash(TablaHash *tabla1) {
+TablaHash* copiarTablaHash(const TablaHash *tabla1) {
 
 	int i;
 	TablaHash* tabla2 = NULL;
@@ -432,11 +432,11 @@ TablaHash* copiarTablaHash(TablaHash *tabla1) {
 	if(tabla1 == NULL)
 		return NULL;
 
-	tabla2 = crearTablaHash(30);
+	tabla2 = crearTablaHash(tabla1->tam);
 	if(tabla2 == NULL)
 		return NULL;
 
-	for(i = 0; i < MAX_HASH_RET; i++){
+	for(i = 0; i < tabla1->tam; i++){
 
 		tabla2->nodos[i] = copiarNodoHash(tabla1->nodos[i]);
 	}

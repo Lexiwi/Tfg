@@ -14,5 +14,6 @@ double getRuidoTiempo(Ruido* ruido);
 int setRuidoTiempo(Ruido* ruido, double tmp);
 int actualizaRuido(Ruido* ruido, double tmp);
 void ruido_print(Ruido* ruido);
+Ruido* ruido_copy(const Ruido* ruido);
 
 #endif /*RUIDO_H*/

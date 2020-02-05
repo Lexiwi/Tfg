@@ -92,6 +92,23 @@ void ruido_print(Ruido* ruido) {
 
     return;
 }
+
+Ruido* ruido_copy(const Ruido* ruido) {
+
+    Ruido* aux=NULL;
+
+    if(!ruido)
+        return NULL;
+
+    aux = ruido_ini();
+    if(!aux)
+        return NULL;
+
+    aux->count =  ruido->count;
+    aux->tiempo = ruido->tiempo;
+
+    return aux;
+}
  
 
  

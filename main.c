@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
     PcapDrop *pd = NULL;            // Estructura para provocar perdidas
 
     //struct timeval t_ini, t_fin;
-    ListControl* igmp2 = NULL;
+    Ruido* ruido2 = NULL;
 
     pthread_t hilo_1;
     pthread_t hilo_2;
@@ -178,6 +178,11 @@ int main(int argc, char *argv[]) {
             para = 0;
             pthread_join(hilo_1, NULL);
             pthread_join(hilo_2, NULL);
+
+            ruido2 = ruido_copy(ruido);
+            ruido_print(ruido);
+            ruido_print(ruido2);
+            ruido_free(ruido2);
             ////////////////////
             //gettimeofday(&t_ini, NULL);
             //gettimeofday(&t_fin, NULL);
