@@ -262,7 +262,7 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
             setTiempo(node, ret);
             //Comprobación de paquetes perdidos
             if(numSeq - getInfo(node) > 1)
-                setNumPerdidos(nodo, 1);
+                setNumPerdidos(nodo, numSeq - getInfo(node) - 1);
             setInfo(node, numSeq);
         }
         
@@ -362,7 +362,7 @@ void volcarTabla(sqlite3 *db, TablaHash* tabla, ListControl* igmp, ListControl* 
 			aux = tabla->nodos[i];
 			while(aux != NULL){
 
-				sprintf(sql, "\"INSERT INTO Canales(Ip, Tiempo, NumPaq, NumPer, Ret, RetC, NumErr, Bytes) VALUES(\'%s\', %f, %d, %d, %f, %f, %d, %d);\"",
+				sprintf(sql, "INSERT INTO Canales(Ip, Tiempo, NumPaq, NumPer, Ret, RetC, NumErr, Bytes) VALUES(\'%s\', %f, %d, %d, %f, %f, %d, %d);",
                     getClave(aux), getLlegadaAnterior(aux),  getNumRecibidos(aux), getNumPerdidos(aux), 
                     getRetardo(aux), getRetardoCuadrado(aux), getNumIgmpErr(aux), getNumBytes(aux));
                 rc = sqlite3_exec(db, sql, 0, 0, &err_msg);

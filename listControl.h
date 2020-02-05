@@ -60,5 +60,6 @@ int getInfo(NodeControl* node);
 int setInfo(NodeControl* node, int inf);
 NodeControl* getNode(ListControl* list, char* canal);
 NodeControl* getNodePos(ListControl* list, int pos);
+ListControl* listControl_copy(const ListControl* list);
 
 #endif /*LIST_H*/

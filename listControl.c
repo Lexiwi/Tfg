@@ -471,7 +471,7 @@ NodeControl* getNodePos(ListControl* list, int pos) {
     return pn;
 }
 
-ListControl* ListControl_copy(const ListControl* list) {
+ListControl* listControl_copy(const ListControl* list) {
 
     NodeControl *pn =NULL;
     NodeControl *pa =NULL;
@@ -489,8 +489,8 @@ ListControl* ListControl_copy(const ListControl* list) {
     pn = node(list);
     while(pn != NULL) {
 
-        if((aux = listControl_insertFirst(aux, canal(pn), tiempo(pn), info(pn))) == NULL) {
-            fprintf(sdterr, "Error al copiar en ListControl_copy");
+        if((aux = listControl_insertLast(aux, canal(pn), tiempo(pn), info(pn))) == NULL) {
+            fprintf(stderr, "Error al copiar en ListControl_copy");
             return NULL;
         }
         pa = pn;

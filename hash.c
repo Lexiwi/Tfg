@@ -424,19 +424,24 @@ void printTablaHash(TablaHash *tabla) {
 
 }
 
-int copiarTablaHash(TablaHash *tabla1, TablaHash *tabla2) {
+TablaHash* copiarTablaHash(TablaHash *tabla1) {
 
 	int i;
+	TablaHash* tabla2 = NULL;
 
-	if(tabla1 == NULL || tabla2 == NULL)
-		return -1;
+	if(tabla1 == NULL)
+		return NULL;
+
+	tabla2 = crearTablaHash(30);
+	if(tabla2 == NULL)
+		return NULL;
 
 	for(i = 0; i < MAX_HASH_RET; i++){
 
 		tabla2->nodos[i] = copiarNodoHash(tabla1->nodos[i]);
 	}
 
-	return 0;
+	return tabla2;
 }
 
 NodoHash* copiarNodoHash(NodoHash *nodo) {

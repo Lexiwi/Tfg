@@ -45,9 +45,8 @@ void* hilo_baseDatos(void* arg) {
     
     while( para == 1 ){
         sleep(10);
-        aux = crearTablaHash(30);
         sem_wait(&mutex);
-        copiarTablaHash(tabla, aux);
+        aux = copiarTablaHash(tabla);
         sem_post(&mutex);
         volcarTabla(db, aux, igmp, udp, ruido);
         eliminarTablaHash(aux);
@@ -70,6 +69,7 @@ int main(int argc, char *argv[]) {
     PcapDrop *pd = NULL;            // Estructura para provocar perdidas
 
     //struct timeval t_ini, t_fin;
+    ListControl* igmp2 = NULL;
 
     pthread_t hilo_1;
     pthread_t hilo_2;
@@ -178,7 +178,6 @@ int main(int argc, char *argv[]) {
             para = 0;
             pthread_join(hilo_1, NULL);
             pthread_join(hilo_2, NULL);
-    
             ////////////////////
             //gettimeofday(&t_ini, NULL);
             //gettimeofday(&t_fin, NULL);
