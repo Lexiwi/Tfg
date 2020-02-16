@@ -88,7 +88,7 @@ List* list_ini(){
  * @Input: List *: Puntero a la lista a borrar.
  * @Output: void
  ------------------------------------------------------------------------*/
- void list_free(List* list){
+ void free_list(List* list){
     if(!list)
         return;
     
@@ -362,6 +362,45 @@ int list_extractElement(List* list, char* ip){
     }
     
     return 0;
+}
+
+char** list_getClientes(const List* list){
+
+    int i, j, size;
+    char **clientes;
+    Node *pn =NULL;
+    char* pe = NULL;
+
+    if(!list || list_isEmpty(list))
+        return NULL;
+
+    size = list_size(list);
+
+
+    clientes = (char**)malloc(size*sizeof(char*));
+    if(!clientes){
+        fprintf(stderr, "Error al obtener los clientes de un nodo Hash");
+        return NULL;
+    }
+    pn = node(list);
+    
+    for(i = 0; i < size; i++){
+
+        pe = data(pn);
+        //clientes[i] = (char*)malloc(sizeof(char)*strlen(pe));
+        //if(clientes[i] == NULL){
+        //    fprintf(stderr, "Error al copiar el cliente: %s", pe);
+        //    for(j = 0; j < i; j++)
+        //        free(clientes[j]);
+        //    free(clientes);
+        //    return NULL;
+        //}
+        //strcpy(clientes[i], pe);
+        clientes[i] = pe;
+        pn = next(pn);
+    }
+
+    return clientes;
 }
 
 int list_copy(List* list1, List* list2) {

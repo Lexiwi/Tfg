@@ -58,6 +58,7 @@ double getTiempo(NodeControl* node);
 int setTiempo(NodeControl* node, double tmp);
 int getInfo(NodeControl* node);
 int setInfo(NodeControl* node, int inf);
+NodeControl* getNext(NodeControl* node);
 NodeControl* getNode(ListControl* list, char* canal);
 NodeControl* getNodePos(ListControl* list, int pos);
 ListControl* listControl_copy(const ListControl* list);

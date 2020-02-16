@@ -23,7 +23,7 @@ typedef struct _List List;
 List* list_ini();
 
 /* Libera la lista y todos sus elementos. */
-void list_free(List* list);
+void free_list(List* list);
 
 /* Inserta al principio de la lista realizando una copia del elemento. */
 List* list_insertFirst(List* list, const char *elem);
@@ -51,6 +51,8 @@ int list_check_element(const List* list, char* ip);
 
 /* Eliminamos un elemento de la lista*/
 int list_extractElement(List* list, char* ip);
+
+char** list_getClientes(const List* list);
 
 /* Copiamos la lista 1 en la lista 2*/
 int list_copy(List* list1, List* list2);

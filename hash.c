@@ -89,7 +89,7 @@ int eliminarNodoRC(NodoHash* nodo) {
 	//if(nodo->info->nParam > 0){
 	//	free(nodo->info->tipo_args);
 	//}
-	list_free(nodo->lista);
+	free_list(nodo->lista);
 	free(nodo);
 
 	return OK;
@@ -470,7 +470,6 @@ NodoHash* copiarNodoHash(NodoHash *nodo) {
 	aux->retAnterior = nodo->retAnterior;
 	aux->bytes = nodo->bytes;
 	aux->igmpErr = nodo->igmpErr;
-
 	aux->siguiente = copiarNodoHash(nodo->siguiente);
 	
 	return aux;

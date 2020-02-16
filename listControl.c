@@ -415,6 +415,14 @@ int setInfo(NodeControl* node, int inf) {
     return 0;
 }
 
+NodeControl* getNext(NodeControl* node) {
+
+    if(node == NULL)
+        return NULL;
+
+    return node->next;
+}
+
 NodeControl* getNode(ListControl* list, char* canal) {
 
     NodeControl *pn =NULL;
@@ -441,7 +449,7 @@ NodeControl* getNode(ListControl* list, char* canal) {
         pn = next(pa);
     }
     
-    return 0;
+    return NULL;
 
 }
 

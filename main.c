@@ -6,7 +6,7 @@
 #include "hash.h"
 #include "listControl.h"
 #include "ruido.h"
-#include "bdLite.h"
+#include "bdSql.h"
 
 pcap_t *handle = NULL;      // Manejador pcap
 sem_t mutex;                // Semaforo
@@ -16,7 +16,7 @@ TablaHash* tabla = NULL;
 ListControl* igmp = NULL;
 ListControl* udp = NULL;
 Ruido* ruido = NULL;
-sqlite3 *db;
+MYSQL *db = NULL;
 
 void* hilo_errIGMP(void* arg);
 void* hilo_baseDatos(void* arg);
@@ -39,17 +39,24 @@ void* hilo_errIGMP(void* arg) {
 
 void* hilo_baseDatos(void* arg) {
 
-    TablaHash* aux = NULL;
+    TablaHash* auxt = NULL;
+    ListControl* auxi = NULL;
+    Ruido* auxr = NULL;
     
     //Inicializamos la base de datos
     
     while( para == 1 ){
         sleep(10);
         sem_wait(&mutex);
-        aux = copiarTablaHash(tabla);
+        auxt = copiarTablaHash(tabla);
+        auxi = listControl_copy(igmp);
+        auxr = ruido_copy(ruido);
+        // QUE HAGO SI ALGUNA COPIA FALLA?
         sem_post(&mutex);
-        volcarTabla(db, aux, igmp, udp, ruido);
-        eliminarTablaHash(aux);
+        volcarTabla(db, auxt, auxi, auxr);
+        listControl_free(auxi);
+        ruido_free(auxr);
+        eliminarTablaHash(auxt);
     }
     return NULL;
 }
@@ -69,7 +76,6 @@ int main(int argc, char *argv[]) {
     PcapDrop *pd = NULL;            // Estructura para provocar perdidas
 
     //struct timeval t_ini, t_fin;
-    Ruido* ruido2 = NULL;
 
     pthread_t hilo_1;
     pthread_t hilo_2;
@@ -146,13 +152,13 @@ int main(int argc, char *argv[]) {
             igmp = listControl_ini();
             udp = listControl_ini();
             ruido = ruido_ini();
-            rc = sqlite3_open("data.db", &db);
             if(tabla == NULL || igmp == NULL || udp == NULL) {
                 printf("Error al crear tabla hash o listControl");
                 return -1;
             }
-            if (rc != SQLITE_OK) {
-                fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+            db = conectaDB();
+            if (!db) {
+                fprintf(stderr, "Error al abrir la base de datos: %s\n", mysql_error(db));
                 break;
             }
             
@@ -161,7 +167,7 @@ int main(int argc, char *argv[]) {
             
             sem_init(&mutex, 0, 1);
             pthread_create(&hilo_1, NULL, *hilo_errIGMP, NULL);
-            pthread_create(&hilo_2, NULL, *hilo_baseDatos, NULL);
+            //pthread_create(&hilo_2, NULL, *hilo_baseDatos, NULL);
 
             //signal(SIGINT, finaliza_monitorizacion);   <------------- TO DO
             while ((res = pcap_next_ex(handle, &packet_header, &packet)) >= 0) {
@@ -177,12 +183,8 @@ int main(int argc, char *argv[]) {
             }
             para = 0;
             pthread_join(hilo_1, NULL);
-            pthread_join(hilo_2, NULL);
+            //pthread_join(hilo_2, NULL);
 
-            ruido2 = ruido_copy(ruido);
-            ruido_print(ruido);
-            ruido_print(ruido2);
-            ruido_free(ruido2);
             ////////////////////
             //gettimeofday(&t_ini, NULL);
             //gettimeofday(&t_fin, NULL);
@@ -192,7 +194,9 @@ int main(int argc, char *argv[]) {
             listControl_free(igmp);
             listControl_free(udp);
             ruido_free(ruido);
-            sqlite3_close(db);
+            mysql_close(db);
+            //Libera mysql_library_init() que se ejecuta dentro de mysql_init()
+            mysql_library_end();
             sem_destroy(&mutex);
             break;
 

@@ -12,7 +12,7 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <time.h>
-#include <sqlite3.h>
+#include <mysql/mysql.h>
 #include "hash.h"
 #include "listControl.h"
 #include "ruido.h"
@@ -64,6 +64,6 @@ void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaH
 void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla, ListControl* igmp, ListControl* udp, Ruido* ruido);
 int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla, ListControl* igmp, ListControl* udp, Ruido* ruido);
 void errorIgmp(TablaHash* tabla, ListControl* igmp, ListControl* udp);
-void volcarTabla(sqlite3 *db, TablaHash* tabla, ListControl* igmp, ListControl* udp, Ruido* ruido);
+void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido);
 
 #endif

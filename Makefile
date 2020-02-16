@@ -6,7 +6,7 @@ EXE = main
 RLJ = -lm -lrt
 FPCAP = -lpcap
 HL = -pthread
-DB = -lsqlite3
+DB = -lmysqlclient
 
 all : $(EXE) objclean
 
@@ -17,14 +17,14 @@ clean :
 objclean:
 	@rm *.o
 
-$(EXE) : % : %.o analiza.o hash.o list.o listControl.o ruido.o bdLite.o
+$(EXE) : % : %.o analiza.o hash.o list.o listControl.o ruido.o bdSql.o
 	@echo "#---------------------------"
 	@echo "# Generando $@ "
 	@echo "# Depende de $^"
 	@echo "# Ha cambiado $<"
-	$(CC) $(CFLAGS) -o $@ $@.o analiza.o hash.o list.o listControl.o ruido.o bdLite.o $(FPCAP) $(HL) $(DB)
+	$(CC) $(CFLAGS) -o $@ $@.o analiza.o hash.o list.o listControl.o ruido.o bdSql.o $(FPCAP) $(HL) $(DB)
 
-analiza.o : analiza.c analiza.h hash.h listControl.h ruido.h bdLite.h
+analiza.o : analiza.c analiza.h hash.h listControl.h ruido.h bdSql.h
 	@echo "#---------------------------"
 	@echo "# Generando $@"
 	@echo "# Depende de $^"
@@ -59,7 +59,7 @@ ruido.o: ruido.c ruido.h
 	@echo "# Ha cambiado $<"
 	$(CC) $(FLAGS) -c $<
 
-bdLite.o: bdLite.c bdLite.h
+bdSql.o: bdSql.c bdSql.h
 	@echo "#---------------------------"
 	@echo "# Generando $@"
 	@echo "# Depende de $^"
