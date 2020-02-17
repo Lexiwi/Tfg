@@ -24,12 +24,12 @@ $(EXE) : % : %.o analiza.o hash.o list.o listControl.o ruido.o bdSql.o
 	@echo "# Ha cambiado $<"
 	$(CC) $(CFLAGS) -o $@ $@.o analiza.o hash.o list.o listControl.o ruido.o bdSql.o $(FPCAP) $(HL) $(DB)
 
-analiza.o : analiza.c analiza.h hash.h listControl.h ruido.h bdSql.h
+analiza.o : analiza.c analiza.h hash.h listControl.h ruido.h
 	@echo "#---------------------------"
 	@echo "# Generando $@"
 	@echo "# Depende de $^"
 	@echo "# Ha cambiado $<"
-	$(CC) $(CFLAGS) -c $< $(FPCAP) $(DB)
+	$(CC) $(CFLAGS) -c $< $(FPCAP)
 
 hash.o : hash.c hash.h list.h
 	@echo "#---------------------------"
@@ -59,7 +59,7 @@ ruido.o: ruido.c ruido.h
 	@echo "# Ha cambiado $<"
 	$(CC) $(FLAGS) -c $<
 
-bdSql.o: bdSql.c bdSql.h
+bdSql.o: bdSql.c bdSql.h hash.h listControl.h ruido.h
 	@echo "#---------------------------"
 	@echo "# Generando $@"
 	@echo "# Depende de $^"

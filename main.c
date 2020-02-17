@@ -63,11 +63,9 @@ void* hilo_baseDatos(void* arg) {
 
 int main(int argc, char *argv[]) {
 
-    //int fHandle = -1;             // 1 - Online | 2 - Fichero
     int accion = -1;                // 1 - Monitoriza | 2 - Calcula QoS | 3 - Genera perdidas
     int opt = -1;                   // Variable para argumentos
     int res = 0;
-    int rc = 0;
     char filename[100];
     
     const u_char *packet;
@@ -167,7 +165,7 @@ int main(int argc, char *argv[]) {
             
             sem_init(&mutex, 0, 1);
             pthread_create(&hilo_1, NULL, *hilo_errIGMP, NULL);
-            //pthread_create(&hilo_2, NULL, *hilo_baseDatos, NULL);
+            pthread_create(&hilo_2, NULL, *hilo_baseDatos, NULL);
 
             //signal(SIGINT, finaliza_monitorizacion);   <------------- TO DO
             while ((res = pcap_next_ex(handle, &packet_header, &packet)) >= 0) {
@@ -183,7 +181,7 @@ int main(int argc, char *argv[]) {
             }
             para = 0;
             pthread_join(hilo_1, NULL);
-            //pthread_join(hilo_2, NULL);
+            pthread_join(hilo_2, NULL);
 
             ////////////////////
             //gettimeofday(&t_ini, NULL);

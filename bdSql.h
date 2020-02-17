@@ -2,6 +2,9 @@
 #define BDSQL_H
 
 #include <mysql/mysql.h>
+#include "hash.h"
+#include "listControl.h"
+#include "ruido.h"
 
 #define SERVIDOR "localhost"
 #define USUARIO "lexo"
@@ -16,5 +19,6 @@
 
 MYSQL* conectaDB();
 int reseteaDB(MYSQL *db);
+void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido);
 
 #endif
