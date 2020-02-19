@@ -307,7 +307,8 @@ int setRetardo(NodoHash* nodo, double ret) {
 	if (nodo == NULL)
 		return -1;
 
-	nodo->ret = nodo->ret + ret;
+	//nodo->ret = nodo->ret + ret;
+	nodo->ret = ret;
 	return 0;
 }
 
@@ -324,7 +325,8 @@ int setRetardoCuadrado(NodoHash* nodo, double ret) {
 	if (nodo == NULL)
 		return -1;
 	
-	nodo->retCuadrado = nodo->retCuadrado + ret;
+	//nodo->retCuadrado = nodo->retCuadrado + ret;
+	nodo->retCuadrado = ret;
 	return 0;
 }
 

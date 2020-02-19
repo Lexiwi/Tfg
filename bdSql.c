@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 #include "bdSql.h"
+
+double calculaVarianza(int numPaq, int numPaqQuery, double ret, double retQuery, double retC, double retCQuery);
 
 MYSQL* conectaDB() {
 
@@ -61,14 +64,20 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
 
     int i, j, size;
     int rc = 0;
+    int numPaqQuery = 0;
+    double retQuery, retCQuery, var = 0.0; 
     char *err_msg = 0;
-    char sql[500];
+    char *eptr;
+    char sql[500], query[100];
     char *canal = NULL;
     char** clientes = NULL;
 
     NodoHash* aux = NULL;
     NodeControl *pn = NULL;
     const List* lista = NULL;
+
+    MYSQL_RES *result = NULL;   //Variable para guardar resultado de la query
+    MYSQL_ROW row = NULL;       //Variable para recorrer las filas del resultado      
 
     if(tabla == NULL || igmp == NULL || ruido == NULL)
         return;
@@ -80,24 +89,45 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
 			aux = tabla->nodos[i];
 			while(aux != NULL){
 
-				sprintf(sql, "INSERT INTO Canales VALUES(\'%s\', %.f, %d, %d, %.f, %.f, %d, %d)",
-                    getClave(aux), getLlegadaAnterior(aux),  getNumRecibidos(aux), getNumPerdidos(aux), 
-                    getRetardo(aux), getRetardoCuadrado(aux), getNumIgmpErr(aux), getNumBytes(aux));
-                rc = mysql_query(db, sql);
-                //rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
+                sprintf(query, "SELECT Ret,RetC,NumPaq FROM Canales WHERE Ip=\'%s\' ORDER BY NumPaq DESC LIMIT 1", getClave(aux));
+                rc = mysql_query(db, query);
                 if (rc != 0 ) {
-                    fprintf(stderr, "SQL error: %s\n", mysql_error(db));
-                    //sqlite3_free(err_msg);        
+                    fprintf(stderr, "SQL error: %s\n", mysql_error(db));       
                     return;
                 }
-                //sqlite3_free(err_msg);
+                result = mysql_store_result(db);
+                if (!result) {
+                    fprintf(stderr, "SQL error: %s\n", mysql_error(db));
+                    mysql_free_result(result);   
+                    return;
+                }
+                row = mysql_fetch_row(result);
+                if(!row)
+                    var = calculaVarianza(getNumRecibidos(aux), 0, getRetardo(aux), 0.0, getRetardoCuadrado(aux), 0.0);
+                else {
+                    retQuery = strtod(row[0], &eptr);
+                    retCQuery = strtod(row[1], &eptr);
+                    numPaqQuery = atoi(row[2]);
+                    var = calculaVarianza(getNumRecibidos(aux), numPaqQuery, getRetardo(aux), retQuery, getRetardoCuadrado(aux), retCQuery);
+                }
+
+                mysql_free_result(result);
+				sprintf(sql, "INSERT INTO Canales VALUES(\'%s\', %.f, %d, %d, %.f, %.f, %d, %d, %.f)",
+                    getClave(aux), getLlegadaAnterior(aux),  getNumRecibidos(aux), getNumPerdidos(aux), 
+                    getRetardo(aux), getRetardoCuadrado(aux), getNumIgmpErr(aux), getNumBytes(aux), var);
+                rc = mysql_query(db, sql);
+                if (rc != 0 ) {
+                    fprintf(stderr, "SQL error: %s\n", mysql_error(db));      
+                    return;
+                }
                 memset(sql, 0, sizeof(sql));
+                memset(sql, 0, sizeof(query));
 				aux = getSiguiente(aux);
 			}
 		}
 
 	}
-
+    
     pn = getNodePos(igmp, 0);
     while(pn != NULL) {
 
@@ -112,15 +142,12 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
             sprintf(sql, "INSERT INTO Igmp VALUES(\'%s\', %.f, \'%s\')",
                 canal, getTiempo(pn), clientes[i]);
             rc = mysql_query(db, sql);
-            //rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
             if (rc != 0 ) {
                 fprintf(stderr, "SQL error: %s\n", mysql_error(db));
-                free(clientes);
-                //sqlite3_free(err_msg);        
+                free(clientes);     
                 return;
             }
             free(clientes);
-            //sqlite3_free(err_msg);
             memset(sql, 0, sizeof(sql));
         }
         
@@ -129,15 +156,38 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
 
     sprintf(sql, "INSERT INTO Ruido VALUES(%.f, %d)", getRuidoTiempo(ruido), getRuidoCount(ruido));
     rc = mysql_query(db, sql);
-    //rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
     if (rc != 0) {
-        fprintf(stderr, "SQL error: %s\n", mysql_error(db));
-        //sqlite3_free(err_msg);        
+        fprintf(stderr, "SQL error: %s\n", mysql_error(db));   
         return;
     }
-    //sqlite3_free(err_msg);
     memset(sql, 0, sizeof(sql));
 
     return;
     
+}
+
+
+double calculaVarianza(int numPaq, int numPaqQuery, double ret, double retQuery, double retC, double retCQuery) {
+    
+    double eRet, eRetC, vRet, var = 0.0;
+    int difNumPaq = 0;
+
+    if(numPaq == numPaqQuery || ret < retQuery || retC < retCQuery)
+        return 0.0;
+
+    printf("num1: %d\n", numPaq);
+    printf("num2: %d\n", numPaqQuery);
+    printf("num3: %.f\n", ret);
+    printf("num4: %.f\n", retQuery);
+    printf("num5: %.f\n", retC);
+    printf("num6: %.f\n", retCQuery);
+
+    difNumPaq = numPaq - numPaqQuery;
+    eRet = (ret - retQuery)/difNumPaq;
+    eRetC = (retC - retCQuery)/difNumPaq;
+
+    vRet = eRetC - (eRet*eRet);
+    var = sqrt(vRet);
+    return var;
+
 }

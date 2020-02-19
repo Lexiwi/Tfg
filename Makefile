@@ -7,6 +7,7 @@ RLJ = -lm -lrt
 FPCAP = -lpcap
 HL = -pthread
 DB = -lmysqlclient
+MATH = -lm
 
 all : $(EXE) objclean
 
@@ -22,7 +23,7 @@ $(EXE) : % : %.o analiza.o hash.o list.o listControl.o ruido.o bdSql.o
 	@echo "# Generando $@ "
 	@echo "# Depende de $^"
 	@echo "# Ha cambiado $<"
-	$(CC) $(CFLAGS) -o $@ $@.o analiza.o hash.o list.o listControl.o ruido.o bdSql.o $(FPCAP) $(HL) $(DB)
+	$(CC) $(CFLAGS) -o $@ $@.o analiza.o hash.o list.o listControl.o ruido.o bdSql.o $(FPCAP) $(HL) $(DB) $(MATH)
 
 analiza.o : analiza.c analiza.h hash.h listControl.h ruido.h
 	@echo "#---------------------------"
@@ -64,7 +65,7 @@ bdSql.o: bdSql.c bdSql.h hash.h listControl.h ruido.h
 	@echo "# Generando $@"
 	@echo "# Depende de $^"
 	@echo "# Ha cambiado $<"
-	$(CC) $(FLAGS) -c $< $(DB)
+	$(CC) $(FLAGS) -c $<
 
 #main.o : main.c
 #	@echo "#---------------------------"
