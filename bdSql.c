@@ -80,7 +80,7 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
 			aux = tabla->nodos[i];
 			while(aux != NULL){
 
-				sprintf(sql, "INSERT INTO Canales VALUES(\'%s\', %f, %d, %d, %f, %f, %d, %d)",
+				sprintf(sql, "INSERT INTO Canales VALUES(\'%s\', %.f, %d, %d, %.f, %.f, %d, %d)",
                     getClave(aux), getLlegadaAnterior(aux),  getNumRecibidos(aux), getNumPerdidos(aux), 
                     getRetardo(aux), getRetardoCuadrado(aux), getNumIgmpErr(aux), getNumBytes(aux));
                 rc = mysql_query(db, sql);
@@ -109,7 +109,7 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
 
         for(i = 0; i < size; i++) {
 
-            sprintf(sql, "INSERT INTO Igmp VALUES(\'%s\', %f, \'%s\')",
+            sprintf(sql, "INSERT INTO Igmp VALUES(\'%s\', %.f, \'%s\')",
                 canal, getTiempo(pn), clientes[i]);
             rc = mysql_query(db, sql);
             //rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
@@ -127,7 +127,7 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
         pn = getNext(pn);
     }
 
-    sprintf(sql, "INSERT INTO Ruido VALUES(%f, %d)", getRuidoTiempo(ruido), getRuidoCount(ruido));
+    sprintf(sql, "INSERT INTO Ruido VALUES(%.f, %d)", getRuidoTiempo(ruido), getRuidoCount(ruido));
     rc = mysql_query(db, sql);
     //rc = sqlite3_exec(db, sql, 0, 0, &err_msg);
     if (rc != 0) {

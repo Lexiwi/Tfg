@@ -153,8 +153,8 @@ void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaH
     strcpy(clave, inet_ntoa(ip->ip_dst));
     strcpy(cliente, inet_ntoa(ip->ip_src));
 
+    //Microsegundos si quitamos el /100000
     ret = ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec));
-
     /* Nos colocamos al principio de la cabecera IP */
     ip_header = packet + LEN_ETH;
     /* Obtenemos el campo IHL para averiguar el tamanio de la cabecera IP */
@@ -225,7 +225,7 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
     strcpy(clave, inet_ntoa(ip->ip_dst));
     strcpy(cliente, inet_ntoa(ip->ip_src));
 
-    //Microsegundos
+    //Microsegundos si quitamos el /100000
     ret = ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec));
 
     /* Nos colocamos al principio de la cabecera IP */
