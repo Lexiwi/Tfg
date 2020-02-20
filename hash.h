@@ -62,7 +62,7 @@ NodoHash* crearNodoHash(char *clave);
 * Parametro: info. Informacion del nodo
 * Devuelve: Devuelve OK en caso de que se borre correctamente y ERROR en caso contrario
 */
-int insertarNodoHash(TablaHash *tabla, char *clave, void *info);
+int insertarNodoHash(TablaHash *tabla, char *clave, void *info, double tiempo);
 
 /**
 *  Busca en la tabla hash un nodo

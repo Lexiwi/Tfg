@@ -126,7 +126,7 @@ NodoHash* crearNodoHash(char *clave) {
 	return nodo;
 }
 
-int insertarNodoHash(TablaHash *tabla, char *clave, void *info) {
+int insertarNodoHash(TablaHash *tabla, char *clave, void *info, double tiempo) {
 	NodoHash* nodo;
 	NodoHash* nodo_aux;
 	int pos;
@@ -136,6 +136,7 @@ int insertarNodoHash(TablaHash *tabla, char *clave, void *info) {
 
 	//nodo = crearNodoHash(clave, info);
 	nodo = crearNodoHash(clave);
+	nodo->retAnterior = tiempo;
 	list_insertFirst(nodo->lista, (char*)info);
 	pos = funcionHash(tabla, clave);
 
@@ -307,8 +308,8 @@ int setRetardo(NodoHash* nodo, double ret) {
 	if (nodo == NULL)
 		return -1;
 
-	//nodo->ret = nodo->ret + ret;
-	nodo->ret = ret;
+	nodo->ret = nodo->ret + ret;
+	printf("Ret acumulado: %f\n", nodo->ret);
 	return 0;
 }
 
@@ -325,8 +326,8 @@ int setRetardoCuadrado(NodoHash* nodo, double ret) {
 	if (nodo == NULL)
 		return -1;
 	
-	//nodo->retCuadrado = nodo->retCuadrado + ret;
-	nodo->retCuadrado = ret;
+	nodo->retCuadrado = nodo->retCuadrado + ret;
+	printf("RetC acumulado: %f\n", nodo->retCuadrado);
 	return 0;
 }
 

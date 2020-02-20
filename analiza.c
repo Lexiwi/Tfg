@@ -168,7 +168,7 @@ void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaH
         nodo = buscarNodoHash(tabla, clave);
         //Si el arbol no esta registrado, lo guardamos
         if (nodo == NULL) {
-            insertarNodoHash(tabla, clave, cliente);
+            insertarNodoHash(tabla, clave, cliente, ret);
             //Guardamos el paquete IGMP en la lista
             listControl_insertFirst(igmp, clave, ret, 1);
         } else {
@@ -210,6 +210,7 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
 
     double ret = 0.0;
     double retA = 0.0;
+    double interArrival = 0.0;
     const struct sniff_ip *ip;
     const u_char *ip_header;
     const u_char *rtp_header;
@@ -227,7 +228,7 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
 
     //Microsegundos 1000000L | Mili 1000
     ret = ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec));
-
+    printf("Tiempo de llegada del paquete actual: %f\n", ret);
     /* Nos colocamos al principio de la cabecera IP */
     ip_header = packet + LEN_ETH;
     /* Obtenemos el campo IHL para averiguar el tamanio de la cabecera IP */
@@ -246,10 +247,14 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
 
         setNumRecibidos(nodo, 1);
         retA = getLlegadaAnterior(nodo);
+        printf("Tiempo de llegada del paquete anterior: %f\n", retA);
         setLlegadaAnterior(nodo, ret);
-        retA = ret - retA;
-        setRetardo(nodo, retA);
-        setRetardoCuadrado(nodo, (retA*retA));
+        interArrival = ret - retA;
+        printf("Interarrival: %f\n", interArrival);
+        //printf("Ret en el nodo Hash: %f\n", retA);
+        //printf("Ret acumulado en Hash: %f\n", getRetardo(nodo));
+        setRetardo(nodo, interArrival);
+        setRetardoCuadrado(nodo, (interArrival*interArrival));
         setNumBytes(nodo, header->len);
         
         // Actualizamos el paquete UDP

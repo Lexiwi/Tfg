@@ -177,10 +177,10 @@ double calculaVarianza(int numPaq, int numPaqQuery, double ret, double retQuery,
 
     printf("num1: %d\n", numPaq);
     printf("num2: %d\n", numPaqQuery);
-    printf("num3: %.f\n", ret);
-    printf("num4: %.f\n", retQuery);
-    printf("num5: %.f\n", retC);
-    printf("num6: %.f\n", retCQuery);
+    printf("num3: %f\n", ret);
+    printf("num4: %f\n", retQuery);
+    printf("num5: %f\n", retC);
+    printf("num6: %f\n", retCQuery);
 
     difNumPaq = numPaq - numPaqQuery;
     eRet = (ret - retQuery)/difNumPaq;
