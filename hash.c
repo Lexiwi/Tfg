@@ -309,7 +309,7 @@ int setRetardo(NodoHash* nodo, double ret) {
 		return -1;
 
 	nodo->ret = nodo->ret + ret;
-	printf("Ret acumulado: %f\n", nodo->ret);
+	//printf("Ret acumulado: %f\n", nodo->ret);
 	return 0;
 }
 
@@ -327,7 +327,7 @@ int setRetardoCuadrado(NodoHash* nodo, double ret) {
 		return -1;
 	
 	nodo->retCuadrado = nodo->retCuadrado + ret;
-	printf("RetC acumulado: %f\n", nodo->retCuadrado);
+	//printf("RetC acumulado: %f\n", nodo->retCuadrado);
 	return 0;
 }
 

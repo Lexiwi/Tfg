@@ -113,7 +113,7 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
 
                 mysql_free_result(result);
 				sprintf(sql, "INSERT INTO Canales VALUES(\'%s\', %.f, %d, %d, %.f, %.f, %d, %d, %.f)",
-                    getClave(aux), getLlegadaAnterior(aux),  getNumRecibidos(aux), getNumPerdidos(aux), 
+                    getClave(aux), getLlegadaAnterior(aux)/1000000,  getNumRecibidos(aux), getNumPerdidos(aux), 
                     getRetardo(aux), getRetardoCuadrado(aux), getNumIgmpErr(aux), getNumBytes(aux), var);
                 rc = mysql_query(db, sql);
                 if (rc != 0 ) {
@@ -174,13 +174,6 @@ double calculaVarianza(int numPaq, int numPaqQuery, double ret, double retQuery,
 
     if(numPaq == numPaqQuery || ret < retQuery || retC < retCQuery)
         return 0.0;
-
-    printf("num1: %d\n", numPaq);
-    printf("num2: %d\n", numPaqQuery);
-    printf("num3: %f\n", ret);
-    printf("num4: %f\n", retQuery);
-    printf("num5: %f\n", retC);
-    printf("num6: %f\n", retCQuery);
 
     difNumPaq = numPaq - numPaqQuery;
     eRet = (ret - retQuery)/difNumPaq;

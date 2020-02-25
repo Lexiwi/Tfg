@@ -228,7 +228,6 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
 
     //Microsegundos 1000000L | Mili 1000
     ret = ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec));
-    printf("Tiempo de llegada del paquete actual: %f\n", ret);
     /* Nos colocamos al principio de la cabecera IP */
     ip_header = packet + LEN_ETH;
     /* Obtenemos el campo IHL para averiguar el tamanio de la cabecera IP */
@@ -247,10 +246,10 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
 
         setNumRecibidos(nodo, 1);
         retA = getLlegadaAnterior(nodo);
-        printf("Tiempo de llegada del paquete anterior: %f\n", retA);
+        //printf("Tiempo de llegada del paquete anterior: %f\n", retA);
         setLlegadaAnterior(nodo, ret);
         interArrival = ret - retA;
-        printf("Interarrival: %f\n", interArrival);
+        //printf("Interarrival: %f\n", interArrival);
         //printf("Ret en el nodo Hash: %f\n", retA);
         //printf("Ret acumulado en Hash: %f\n", getRetardo(nodo));
         setRetardo(nodo, interArrival);
@@ -347,4 +346,3 @@ void errorIgmp(TablaHash* tabla, ListControl* igmp, ListControl* udp) {
 
     }
 }
-
