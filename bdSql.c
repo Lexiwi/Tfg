@@ -64,11 +64,13 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
 
     int i, j, size;
     int rc = 0;
-    int numPaqQuery = 0;
+    int numPaqH = 0, numPerH = 0, numErrH = 0,bytesH = 0;
+    int numPaqQuery = 0,numPerQuery = 0,numErrQuery = 0,bytesQuery = 0;
     double retQuery, retCQuery, var = 0.0; 
+    double retH = 0.0;
     char *err_msg = 0;
     char *eptr;
-    char sql[500], query[100];
+    char sql[350], query[150];
     char *canal = NULL;
     char** clientes = NULL;
 
@@ -89,7 +91,7 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
 			aux = tabla->nodos[i];
 			while(aux != NULL){
 
-                sprintf(query, "SELECT Ret,RetC,NumPaq FROM Canales WHERE Ip=\'%s\' ORDER BY NumPaq DESC LIMIT 1", getClave(aux));
+                sprintf(query, "SELECT Ret,RetC,NumPaq,NumPer,NumErr,Bytes FROM Canales WHERE Ip=\'%s\' ORDER BY NumPaq DESC LIMIT 1", getClave(aux));
                 rc = mysql_query(db, query);
                 if (rc != 0 ) {
                     fprintf(stderr, "SQL error: %s\n", mysql_error(db));       
@@ -102,26 +104,45 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
                     return;
                 }
                 row = mysql_fetch_row(result);
-                if(!row)
+                if(!row){
+                    retQuery = 0.0;
+                    retCQuery = 0.0;
+                    numPaqQuery = 0;
+                    numPerQuery = 0;
+                    numErrQuery = 0;
+                    bytesQuery = 0;
                     var = calculaVarianza(getNumRecibidos(aux), 0, getRetardo(aux), 0.0, getRetardoCuadrado(aux), 0.0);
+                }
                 else {
                     retQuery = strtod(row[0], &eptr);
                     retCQuery = strtod(row[1], &eptr);
                     numPaqQuery = atoi(row[2]);
+                    numPerQuery = atoi(row[3]);
+                    numErrQuery = atoi(row[4]);
+                    bytesQuery = atoi(row[5]);
                     var = calculaVarianza(getNumRecibidos(aux), numPaqQuery, getRetardo(aux), retQuery, getRetardoCuadrado(aux), retCQuery);
                 }
-
+                retH = getRetardo(aux);
+                numPaqH = getNumRecibidos(aux);
+                numPerH = getNumPerdidos(aux);
+                numErrH = getNumIgmpErr(aux);
+                bytesH = getNumBytes(aux);
+                retQuery = retH-retQuery;
+                numPaqQuery = numPaqH-numPaqQuery;
+                numPerQuery = numPerH-numPerQuery;
+                numErrQuery = numErrH-numErrQuery;
+                bytesQuery = bytesH-bytesQuery;
                 mysql_free_result(result);
-				sprintf(sql, "INSERT INTO Canales VALUES(\'%s\', %.f, %d, %d, %.f, %.f, %d, %d, %.f)",
-                    getClave(aux), getLlegadaAnterior(aux)/1000000,  getNumRecibidos(aux), getNumPerdidos(aux), 
-                    getRetardo(aux), getRetardoCuadrado(aux), getNumIgmpErr(aux), getNumBytes(aux), var);
+				sprintf(sql, "INSERT INTO Canales VALUES(\'%s\', %.f, %d, %d, %d, %d, %.f, %.f, %.f, %d, %d, %d, %d, %.f)",
+                    getClave(aux), getLlegadaAnterior(aux)/1000000,  numPaqH, numPaqQuery, numPerH, numPerQuery, 
+                    retH, retQuery, getRetardoCuadrado(aux), numErrH, numErrQuery, bytesH, bytesQuery, var);
                 rc = mysql_query(db, sql);
                 if (rc != 0 ) {
-                    fprintf(stderr, "SQL error: %s\n", mysql_error(db));      
+                    fprintf(stderr, "SQL error en Canales: %s\n", mysql_error(db));      
                     return;
                 }
                 memset(sql, 0, sizeof(sql));
-                memset(sql, 0, sizeof(query));
+                memset(query, 0, sizeof(query));
 				aux = getSiguiente(aux);
 			}
 		}
