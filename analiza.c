@@ -57,12 +57,6 @@ pcap_t * abrir_captura_online() {
         fprintf(stdout, "Error al obtener una interfaz de captura\n");
     }
 
-    /*handle = (pcap_t*)malloc(sizeof(handle));
-    if (handle == NULL) {
-        fprintf(stdout, "Error al reservar memoria para handle en live\n");
-        return NULL;
-    }*/
-
     handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuff);
     if(handle == NULL) {
         fprintf(stdout, "Error al obtener el manejador en captura en vivo: %s\n", errbuff);
@@ -76,12 +70,6 @@ pcap_t * abrir_captura_offline(char* filename) {
 
     char errbuff[PCAP_ERRBUF_SIZE]; /* String de mensaje de error*/
     pcap_t *handle = NULL;          /* Sesion*/
-  
-    /*handle = (pcap_t *)malloc(sizeof(pcap_t));
-    if (handle == NULL) {
-        fprintf(stdout, "Error al reservar memoria para handle en offline\n");
-        return NULL;
-    }*/
 
     handle = pcap_open_offline(filename, errbuff);
     if(handle == NULL) {
@@ -97,7 +85,6 @@ void obtener_trafico_entrante(u_char *args, const struct pcap_pkthdr *header, co
     
     struct ether_header *eth_header;    /* Cabecera Ethernet */
     const struct sniff_ip *ip;          /* Cabecera IP */
-    //const u_char *ip_header;            /* Puntero a la cabecera IP */
 
     /* Primero comprobamos que sea un paquete IP */
     eth_header = (struct ether_header *) packet;
@@ -139,8 +126,10 @@ void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaH
 
     const u_char *igmp_header;
     double ret = 0.0;
-    char clave[16];
-    char cliente[16];
+    char clave[16], cliente[16], aux[16];
+    char *token;
+    const char z[2] = "0";
+    const char p[2] = ".";
     const struct sniff_ip *ip;
     const u_char *ip_header;
     int ip_header_length;
@@ -151,9 +140,19 @@ void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaH
 
     ip = (struct sniff_ip*)(packet + LEN_ETH);
     strcpy(clave, inet_ntoa(ip->ip_dst));
+    strcpy(aux, clave);
+    // Evitamos canales que no sean rtp
+    token = strtok(aux, p);
+    token = strtok(NULL, p);
+    if(strcmp(token, z) != 0){
+        printf("HEYYYYY: %s", clave);
+        return;
+    }
+        
+    
     strcpy(cliente, inet_ntoa(ip->ip_src));
 
-    //Microsegundos si quitamos el /100000
+    //Microsegundos
     ret = ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec));
     /* Nos colocamos al principio de la cabecera IP */
     ip_header = packet + LEN_ETH;
@@ -174,17 +173,18 @@ void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaH
         } else {
             lista = nodoGetInfo(nodo);
             // Si el arbol esta registrado pero el cliente no, lo añadimos
-            if(list_check_element(lista, cliente) == 0){
+            if(list_check_element(lista, cliente) == 0)
                 list_insertFirst(lista, cliente);
-            }
             // Actualizamos el paquete IGMP
             node = getNode(igmp, clave);
             setTiempo(node, ret);
             setInfo(node, 1);
                 
         }
+   
+    }
     // IGMP Leave Group
-    } else if( ((*igmp_header) & 0xFF) == 0x17 ) {
+    else if( ((*igmp_header) & 0xFF) == 0x17 ) {
         nodo = buscarNodoHash(tabla, clave);
         //Si obtenemos un leave y el arbol esta registrado, comprobamos el cliente
         if (nodo != NULL) {
@@ -199,9 +199,9 @@ void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaH
             }
             
         }
-    } else{
+    } 
+    else
         return;
-    }
 
     return;
 }
@@ -246,12 +246,8 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
 
         setNumRecibidos(nodo, 1);
         retA = getLlegadaAnterior(nodo);
-        //printf("Tiempo de llegada del paquete anterior: %f\n", retA);
         setLlegadaAnterior(nodo, ret);
         interArrival = ret - retA;
-        //printf("Interarrival: %f\n", interArrival);
-        //printf("Ret en el nodo Hash: %f\n", retA);
-        //printf("Ret acumulado en Hash: %f\n", getRetardo(nodo));
         setRetardo(nodo, interArrival);
         setRetardoCuadrado(nodo, (interArrival*interArrival));
         setNumBytes(nodo, header->len);
@@ -260,9 +256,9 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
         node = getNode(udp, clave);
         rtp_header = packet + LEN_ETH + ip_header_length + LEN_UDP;
         numSeq = rtp_header[RAW_OFF] * 256 + rtp_header[RAW_OFF + 1];
-        if(node == NULL){
+        if(node == NULL)
             listControl_insertFirst(udp, clave, ret, numSeq);
-        } else {
+        else {
             setTiempo(node, ret);
             //Comprobación de paquetes perdidos
             if(numSeq - getInfo(node) > 1)
@@ -270,10 +266,9 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
             setInfo(node, numSeq);
         }
         
-    } else {
-        //Ruido
-        actualizaRuido(ruido, ret);
-    }
+    } 
+    else
+        actualizaRuido(ruido, ret); //Ruido
 
     return;
 }
@@ -291,25 +286,19 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
         return -1;
     }
 
-
     /* Nos colocamos al principio de la cabecera IP */
     ip_header = packet + LEN_ETH;
-
     /* Vamos que protocolo se esta utilizando*/
     protocolo = (u_char)*(ip_header + 9);
 
     // Paquete IGMP
-    if (protocolo == IPPROTO_IGMP) {
+    if (protocolo == IPPROTO_IGMP) 
         obtener_igmp(header, packet, tabla, igmp);
-    }
     // Caso UDP
-    else if (protocolo == IPPROTO_UDP) {
+    else if (protocolo == IPPROTO_UDP)
         obtener_rtp(header, packet, tabla, igmp, udp, ruido);
-    }
-    else {
+    else 
         printf("Ni IGMP ni UDP\n");
-    }
-
     
     return 0;
 }

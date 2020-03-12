@@ -72,7 +72,7 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
     char *eptr;
     char sql[350], query[150];
     char *canal = NULL;
-    char** clientes = NULL;
+    char **clientes = NULL;
 
     NodoHash* aux = NULL;
     NodeControl *pn = NULL;
@@ -161,7 +161,7 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
         for(i = 0; i < size; i++) {
 
             sprintf(sql, "INSERT INTO Igmp VALUES(\'%s\', %.f, \'%s\')",
-                canal, getTiempo(pn), clientes[i]);
+                canal, getTiempo(pn)/1000000, clientes[i]);
             rc = mysql_query(db, sql);
             if (rc != 0 ) {
                 fprintf(stderr, "SQL error: %s\n", mysql_error(db));
@@ -174,13 +174,32 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
         
         pn = getNext(pn);
     }
-
-    sprintf(sql, "INSERT INTO Ruido VALUES(%.f, %d)", getRuidoTiempo(ruido), getRuidoCount(ruido));
+    
+    rc = mysql_query(db, GET_RUIDO);
+    if (rc != 0 ) {
+        fprintf(stderr, "SQL error: %s\n", mysql_error(db));       
+        return;
+    }
+    result = mysql_store_result(db);
+    if (!result) {
+        fprintf(stderr, "SQL error: %s\n", mysql_error(db));
+        mysql_free_result(result);   
+        return;
+    }
+    row = mysql_fetch_row(result);
+    
+    i = getRuidoCount(ruido);
+    if(!row)
+        j = 0;
+    else
+        j = atoi(row[0]);
+    sprintf(sql, "INSERT INTO Ruido VALUES(%.f, %d, %d)", getRuidoTiempo(ruido)/1000000, i-j, i);
     rc = mysql_query(db, sql);
     if (rc != 0) {
         fprintf(stderr, "SQL error: %s\n", mysql_error(db));   
         return;
     }
+    mysql_free_result(result);
     memset(sql, 0, sizeof(sql));
 
     return;

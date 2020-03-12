@@ -86,7 +86,6 @@ int main(int argc, char *argv[]) {
                 if(handle == NULL){
                     return -1;
                 }
-                //fHandle = 1;
                 break;
             
             case 'F':
@@ -96,7 +95,6 @@ int main(int argc, char *argv[]) {
                 if(handle == NULL){
                     return -1;
                 }
-                //fHandle = 2;
                 break;
             
             case 'l':
@@ -167,7 +165,7 @@ int main(int argc, char *argv[]) {
             pthread_create(&hilo_1, NULL, *hilo_errIGMP, NULL);
             pthread_create(&hilo_2, NULL, *hilo_baseDatos, NULL);
 
-            //signal(SIGINT, finaliza_monitorizacion);   <------------- TO DO
+            //signal(SIGINT, finaliza_monitorizacion);   <------------- TODO
             while ((res = pcap_next_ex(handle, &packet_header, &packet)) >= 0) {
 
                 if (res == 0) {
