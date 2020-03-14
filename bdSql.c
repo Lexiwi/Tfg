@@ -68,6 +68,7 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
     int numPaqQuery = 0,numPerQuery = 0,numErrQuery = 0,bytesQuery = 0;
     double retQuery, retCQuery, var = 0.0; 
     double retH = 0.0;
+    double porH, porQ = 1.0;
     char *err_msg = 0;
     char *eptr;
     char sql[350], query[150];
@@ -127,14 +128,28 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
                 numPerH = getNumPerdidos(aux);
                 numErrH = getNumIgmpErr(aux);
                 bytesH = getNumBytes(aux);
+
                 retQuery = retH-retQuery;
                 numPaqQuery = numPaqH-numPaqQuery;
                 numPerQuery = numPerH-numPerQuery;
                 numErrQuery = numErrH-numErrQuery;
                 bytesQuery = bytesH-bytesQuery;
+
+                if((numPaqH+numPerH) == 0)
+                    porH = 0.0;
+                else{
+                    porH = ((double)numPerH/(numPaqH+numPerH))*100;
+                }
+                    
+                if((numPerQuery+numPaqQuery) == 0)
+                    porQ = 0.0;
+                else{
+                    porQ = ((double)numPerQuery/(numPerQuery+numPaqQuery))*100;
+                }
+                
                 mysql_free_result(result);
-				sprintf(sql, "INSERT INTO Canales VALUES(\'%s\', %.f, %d, %d, %d, %d, %.f, %.f, %.f, %d, %d, %d, %d, %.f)",
-                    getClave(aux), getLlegadaAnterior(aux)/1000000,  numPaqH, numPaqQuery, numPerH, numPerQuery, 
+				sprintf(sql, "INSERT INTO Canales VALUES(\'%s\', %.f, %d, %d, %d, %d, %.f, %.f, %.f, %.f, %.f, %d, %d, %d, %d, %.f)",
+                    getClave(aux), getLlegadaAnterior(aux)/1000000,  numPaqH, numPaqQuery, numPerH, numPerQuery, porH, porQ,
                     retH, retQuery, getRetardoCuadrado(aux), numErrH, numErrQuery, bytesH, bytesQuery, var);
                 rc = mysql_query(db, sql);
                 if (rc != 0 ) {

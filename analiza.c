@@ -144,10 +144,8 @@ void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaH
     // Evitamos canales que no sean rtp
     token = strtok(aux, p);
     token = strtok(NULL, p);
-    if(strcmp(token, z) != 0){
-        printf("HEYYYYY: %s", clave);
+    if(strcmp(token, z) != 0)
         return;
-    }
         
     
     strcpy(cliente, inet_ntoa(ip->ip_src));
