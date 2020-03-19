@@ -29,6 +29,7 @@
 #define LEN_UDP 8
 #define RAW_OFF 2
 #define DROP_FILE_NAME "file_drop"
+#define DEV "enp1s0"
 
 struct sniff_ip {
     u_char ip_vhl;		/* version << 4 | header length >> 2 */
@@ -56,7 +57,7 @@ typedef struct _PcapDrop{
 
 char * conseguir_dev();
 bpf_u_int32 conseguir_direccion_red();
-pcap_t * abrir_captura_online();
+pcap_t * abrir_captura_online(char* dev);
 pcap_t * abrir_captura_offline(char* filename);
 void obtener_trafico_entrante(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
 void provoca_perdidas(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);

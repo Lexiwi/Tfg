@@ -73,8 +73,6 @@ int main(int argc, char *argv[]) {
 
     PcapDrop *pd = NULL;            // Estructura para provocar perdidas
 
-    //struct timeval t_ini, t_fin;
-
     pthread_t hilo_1;
     pthread_t hilo_2;
 
@@ -82,7 +80,7 @@ int main(int argc, char *argv[]) {
         switch(opt) {
             case 'O':
                 // Abrimos captura en vivo/ Liberar memoria de handle
-                handle = abrir_captura_online();
+                handle = abrir_captura_online(DEV);
                 if(handle == NULL){
                     return -1;
                 }
@@ -91,7 +89,7 @@ int main(int argc, char *argv[]) {
             case 'F':
                 // Abrimos captura de fichero/ Liberar memoria de handle
                 strcpy(filename, optarg);
-                handle = abrir_captura_offline(filename); //Fuga de memoria
+                handle = abrir_captura_offline(filename);
                 if(handle == NULL){
                     return -1;
                 }
@@ -99,6 +97,7 @@ int main(int argc, char *argv[]) {
             
             case 'l':
                 // Abrimos fichero dump y provocamos perdidas/ Lberar memoria de handle y dump
+                accion = 3;
                 pd = (PcapDrop *)malloc(sizeof(PcapDrop));
                 if (pd == NULL) {
                     fprintf(stdout, "Error al reservar memoria para PcapDrop\n");
@@ -165,7 +164,7 @@ int main(int argc, char *argv[]) {
             pthread_create(&hilo_1, NULL, *hilo_errIGMP, NULL);
             pthread_create(&hilo_2, NULL, *hilo_baseDatos, NULL);
 
-            //signal(SIGINT, finaliza_monitorizacion);   <------------- TODO
+            signal(SIGINT, finaliza_monitorizacion);   //<------------- TODO
             while ((res = pcap_next_ex(handle, &packet_header, &packet)) >= 0) {
 
                 if (res == 0) {
@@ -181,11 +180,6 @@ int main(int argc, char *argv[]) {
             pthread_join(hilo_1, NULL);
             pthread_join(hilo_2, NULL);
 
-            ////////////////////
-            //gettimeofday(&t_ini, NULL);
-            //gettimeofday(&t_fin, NULL);
-            //printf("%.16g milliseconds\n", ((double)(t_fin.tv_sec + (double)t_fin.tv_usec/1000000) - (double)(t_ini.tv_sec + (double)t_ini.tv_usec/1000000)) * 1000.0);
-            //////////////7////
             eliminarTablaHash(tabla);
             listControl_free(igmp);
             listControl_free(udp);
@@ -199,7 +193,6 @@ int main(int argc, char *argv[]) {
         case 3:
             signal(SIGINT, finaliza_monitorizacion);
             pcap_loop(handle, 2, provoca_perdidas, (u_char*)pd);
-
             pcap_dump_close(pd->dumpfile);
             free(pd);
             break;

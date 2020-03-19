@@ -46,16 +46,16 @@ bpf_u_int32 conseguir_direccion_red() {
     return ip;
 }
 
-pcap_t * abrir_captura_online() {
+pcap_t * abrir_captura_online(char* dev) {
 
-    char *dev;
+    //char *dev;
     char errbuff[PCAP_ERRBUF_SIZE]; /* String de mensaje de error*/
     pcap_t *handle = NULL;          /* Sesion*/
 
-    dev = conseguir_dev();
-    if (dev == NULL) {
-        fprintf(stdout, "Error al obtener una interfaz de captura\n");
-    }
+    //dev = conseguir_dev();
+    //if (dev == NULL) {
+    //    fprintf(stdout, "Error al obtener una interfaz de captura\n");
+    //}
 
     handle = pcap_open_live(dev, BUFSIZ, 1, 1000, errbuff);
     if(handle == NULL) {
@@ -126,10 +126,7 @@ void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaH
 
     const u_char *igmp_header;
     double ret = 0.0;
-    char clave[16], cliente[16], aux[16];
-    char *token;
-    const char z[2] = "0";
-    const char p[2] = ".";
+    char clave[16], cliente[16];
     const struct sniff_ip *ip;
     const u_char *ip_header;
     int ip_header_length;
@@ -140,14 +137,6 @@ void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaH
 
     ip = (struct sniff_ip*)(packet + LEN_ETH);
     strcpy(clave, inet_ntoa(ip->ip_dst));
-    strcpy(aux, clave);
-    // Evitamos canales que no sean rtp
-    token = strtok(aux, p);
-    token = strtok(NULL, p);
-    if(strcmp(token, z) != 0)
-        return;
-        
-    
     strcpy(cliente, inet_ntoa(ip->ip_src));
 
     //Microsegundos
@@ -177,7 +166,6 @@ void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaH
             node = getNode(igmp, clave);
             setTiempo(node, ret);
             setInfo(node, 1);
-                
         }
    
     }
@@ -195,7 +183,6 @@ void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaH
                 setTiempo(node, ret);
                 setInfo(node, 0);
             }
-            
         }
     } 
     else
@@ -233,6 +220,12 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
     /* El campo IHL es un segmento de 32 bits. Multiplicamos por 4 para obtener un puntero aritmetico*/
     ip_header_length = ip_header_length * 4;
 
+    /*Cabecera RTP*/
+    rtp_header = packet + LEN_ETH + ip_header_length + LEN_UDP;
+    //printf("RTP version: %d\n", rtp_header[RAW_OFF]>>6);
+    if(rtp_header[0]>>6 != 2)
+        return;
+
     if ((nodo = buscarNodoHash(tabla, clave)) != NULL) {
 
         // Comprobacion de error IGMP
@@ -250,9 +243,8 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
         setRetardoCuadrado(nodo, (interArrival*interArrival));
         setNumBytes(nodo, header->len);
         
-        // Actualizamos el paquete UDP
+        // Actualizamos el paquete RTP
         node = getNode(udp, clave);
-        rtp_header = packet + LEN_ETH + ip_header_length + LEN_UDP;
         numSeq = rtp_header[RAW_OFF] * 256 + rtp_header[RAW_OFF + 1];
         if(node == NULL)
             listControl_insertFirst(udp, clave, ret, numSeq);
@@ -263,7 +255,6 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
                 setNumPerdidos(nodo, numSeq - getInfo(node) - 1);
             setInfo(node, numSeq);
         }
-        
     } 
     else
         actualizaRuido(ruido, ret); //Ruido
@@ -330,6 +321,5 @@ void errorIgmp(TablaHash* tabla, ListControl* igmp, ListControl* udp) {
                 setNumIgmpErr(nodo, 1);
             }
         }
-
     }
 }

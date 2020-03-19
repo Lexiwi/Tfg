@@ -146,7 +146,7 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
                 else{
                     porQ = ((double)numPerQuery/(numPerQuery+numPaqQuery))*100;
                 }
-                
+                //printf("Mc: %f, S: %.f\n", getLlegadaAnterior(aux)/1000000,getLlegadaAnterior(aux)/1000000);
                 mysql_free_result(result);
 				sprintf(sql, "INSERT INTO Canales VALUES(\'%s\', %.f, %d, %d, %d, %d, %.f, %.f, %.f, %.f, %.f, %d, %d, %d, %d, %.f)",
                     getClave(aux), getLlegadaAnterior(aux)/1000000,  numPaqH, numPaqQuery, numPerH, numPerQuery, porH, porQ,
