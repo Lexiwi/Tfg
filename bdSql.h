@@ -1,3 +1,12 @@
+/*********************************************************** 
+* File:   bdsql.h
+* Author: Jorge Gutierrez Diaz
+* 
+* Descripción: Modulo para operaciones con la base de datos
+*
+***********************************************************/
+
+
 #ifndef BDSQL_H
 #define BDSQL_H
 
@@ -19,8 +28,15 @@
 
 #define GET_RUIDO "SELECT Total FROM Ruido ORDER BY Total DESC LIMIT 1"
 
+/********************* Declaracion de funciones públicas **********************/
+
+/* Conectamos a la base de datos*/
 MYSQL* conectaDB();
+
+/* Limpiamos la base de datos */
 int reseteaDB(MYSQL *db);
+
+/* Volcamos la informacion a la base de datos*/
 void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido);
 
 #endif

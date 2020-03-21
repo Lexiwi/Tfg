@@ -1,11 +1,28 @@
+/*********************************************************** 
+* File:   bdSql.c
+* Author: Jorge Gutierrez Diaz
+* 
+* Descripción: Modulo para operaciones con la base de datos
+*
+***********************************************************/
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
 #include "bdSql.h"
 
+/********************* Declaracion de funciones privadas **********************/
 double calculaVarianza(int numPaq, int numPaqQuery, double ret, double retQuery, double retC, double retCQuery);
 
+/********************* Definición de funciones privadas ***********************/
+
+/************************************************************************
+* @Title: conectaDB
+* @Description: Nos conectamos a la base de datos
+* @Input: Ninguno
+* @Output: MYSQL *: Puntero a la base de datos
+************************************************************************/
 MYSQL* conectaDB() {
 
     MYSQL *db = NULL;
@@ -20,6 +37,12 @@ MYSQL* conectaDB() {
 
 }
 
+/************************************************************************
+* @Title: reseteaDB
+* @Description: Limpiamos la base de datos
+* @Input: MYSQL *: Puntero a la base de datos
+* @Output: int: 0 si salio todo bien, -1 si no.
+************************************************************************/
 int reseteaDB(MYSQL *db) {
 
     int rc = 0;
@@ -60,6 +83,15 @@ int reseteaDB(MYSQL *db) {
     return 0;
 }
 
+/************************************************************************
+* @Title: volcarTabla
+* @Description: Volcamos la informacion a la base de datos
+* @Input: MYSQL *: Puntero a la base de datos
+          TablaHash*: Tabla hash
+          ListControl*: Tabla con la informacion IGMP almacenada
+          Ruido*: Ruido udp almacenado 
+* @Output: void
+************************************************************************/
 void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
 
     int i, j, size;
@@ -221,7 +253,17 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
     
 }
 
-
+/************************************************************************
+* @Title: calculaVarianza
+* @Description: Calculamos el jitter del intervalo
+* @Input: int: Numero de paquetes del intervalo
+          int: Numero de paquetes del intervalo anterior
+          double: retardo acumulado del intervalo
+          double: retardo acumulado del intervalo anterior
+          double: retardo al cuadrado acumulado del intervalo
+          double: retardo al cuadrado acumulado del intervalo anterior
+* @Output: double: jitter
+************************************************************************/
 double calculaVarianza(int numPaq, int numPaqQuery, double ret, double retQuery, double retC, double retCQuery) {
     
     double eRet, eRetC, vRet, var = 0.0;
