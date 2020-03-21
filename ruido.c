@@ -1,3 +1,11 @@
+/*********************************************************** 
+* File:   ruido.c
+* Author: Jorge Gutierrez Diaz
+* 
+* Descripción: TAD para el ruido de los paquetes UDP.
+*
+***********************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,12 +14,18 @@
 
 /******************* Definicion de las estructuras de datos *******************/
 struct _Ruido{
-    int count;
-    double tiempo;
+    int count;          // Cantidad de ruido
+    double tiempo;      // Hora de la ultima actualizacion
 };
 
 /********************* Definición de funciones públicas ***********************/
 
+/************************************************************************
+* @Title: ruido_ini
+* @Description: Reserva memoria e inicializa la estructura
+* @Input: Ninguno
+* @Output: Ruido *: Puntero a la estructura creada
+************************************************************************/
 Ruido* ruido_ini(){
 
     Ruido* ruido=NULL;
@@ -27,6 +41,12 @@ Ruido* ruido_ini(){
     return ruido;
 }
 
+/************************************************************************
+* @Title: ruido_free
+* @Description: Libera la memoria asociada a la estructura
+* @Input: Ruido* : Puntero a la estructura
+* @Output: void
+************************************************************************/
 void ruido_free(Ruido* ruido){
 
     if(!ruido)
@@ -36,6 +56,13 @@ void ruido_free(Ruido* ruido){
     return;
 }
 
+
+/************************************************************************
+* @Title: getRuidoCount
+* @Description: Devuelve la cantidad de paquetes ruido
+* @Input: Ruido* : Puntero a la estructura
+* @Output: int: -1 si ocurre un fallo
+************************************************************************/
 int getRuidoCount(Ruido* ruido) {
 
     if(!ruido)
@@ -45,6 +72,13 @@ int getRuidoCount(Ruido* ruido) {
 
 }
 
+/************************************************************************
+* @Title: setRuidoCount
+* @Description: Actualiza la cantidad de paquetes ruido
+* @Input: Ruido* : Puntero a la estructura
+*         int: Nuevo valor
+* @Output: int: -1 si ocurre un fallo, 0 si no
+************************************************************************/
 int setRuidoCount(Ruido* ruido, int cnt) {
 
     if(!ruido || cnt < 0)
@@ -54,6 +88,12 @@ int setRuidoCount(Ruido* ruido, int cnt) {
     return 0;
 }
 
+/************************************************************************
+* @Title: getRuidoTiempo
+* @Description: Devuelve la hora de la ultima actualizacion
+* @Input: Ruido* : Puntero a la estructura
+* @Output: double: -1.0 si ocurre un fallo
+************************************************************************/
 double getRuidoTiempo(Ruido* ruido) {
 
     if(!ruido)
@@ -63,6 +103,13 @@ double getRuidoTiempo(Ruido* ruido) {
 
 }
 
+/************************************************************************
+* @Title: setRuidoTiempo
+* @Description: Actualiza la hora de la ultima actualizacion
+* @Input: Ruido* : Puntero a la estructura
+*         double: Nuevo tiempo
+* @Output: int: -1 si ocurre un fallo, 0 si no
+************************************************************************/
 int setRuidoTiempo(Ruido* ruido, double tmp) {
 
     if(!ruido || tmp < 0.0)
@@ -72,6 +119,13 @@ int setRuidoTiempo(Ruido* ruido, double tmp) {
     return 0;
 }
 
+/************************************************************************
+* @Title: actualizaRuido
+* @Description: Actualiza todos los valores de la estructura
+* @Input: Ruido* : Puntero a la estructura
+*         double: Nuevo tiempo
+* @Output: int: -1 si ocurre un fallo, 0 si no
+************************************************************************/
 int actualizaRuido(Ruido* ruido, double tmp) {
 
     if(!ruido || tmp < 0.0)
@@ -82,6 +136,12 @@ int actualizaRuido(Ruido* ruido, double tmp) {
     return 0;
 }
 
+/************************************************************************
+* @Title: ruido_print
+* @Description: Imprime la estructura de Ruido
+* @Input: Ruido* : Puntero a la estructura
+* @Output: void
+************************************************************************/
 void ruido_print(Ruido* ruido) {
 
     if(!ruido)
@@ -93,6 +153,12 @@ void ruido_print(Ruido* ruido) {
     return;
 }
 
+/************************************************************************
+* @Title: ruido_copy
+* @Description: Copia la estructura de Ruido
+* @Input: Ruido* : Puntero a la estructura
+* @Output: Ruido*: copia de la estructura
+************************************************************************/
 Ruido* ruido_copy(const Ruido* ruido) {
 
     Ruido* aux=NULL;
