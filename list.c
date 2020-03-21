@@ -1,13 +1,9 @@
 /*********************************************************** 
 * File:   list.c
-* Author: Manuel Jiménez y Marcos Asenjo
+* Author: Jorge Gutierrez Diaz
 * 
-* Descripción: Define el TAD lista
+* Descripción: Lista para guardar los clientes en las tablas hash.
 *
-* Date: 22/03/2016
-* Asignatura: Programación II
-* Práctica: 3
-* Ejercicio: 4
 ***********************************************************/
  
 #include <stdio.h>
@@ -22,7 +18,7 @@
 
 /******************* Definicion de las estructuras de datos *******************/
 typedef struct _Node{
-    char* data;
+    char* data;         // Ip del cliente
     struct _Node *next;
 } Node;
 
@@ -34,12 +30,13 @@ Node * node_ini();
 void node_free(Node *node);
 
 /********************* Definición de funciones privadas ***********************/
-/*------------------------------------------------------------------------
- * @Title: node_ini
- * @Description: Reserva memoria e inicializa un nodo
- * @Input: Ninguno
- * @Output: Node *: Puntero al nodo creado
-------------------------------------------------------------------------*/
+
+/************************************************************************
+* @Title: node_ini
+* @Description: Reserva memoria e inicializa un nodo
+* @Input: Ninguno
+* @Output: Node *: Puntero al nodo creado
+************************************************************************/
 Node *node_ini(){
     Node *node=NULL;
     
@@ -51,12 +48,12 @@ Node *node_ini(){
     return node;
 }
  
-/*------------------------------------------------------------------------
- * @Title: node_free
- * @Description: Libera la memoria asociada a un nodo
- * @Input: Node *: Puntero al nodo a liberar
- * @Output: Node *: void
-------------------------------------------------------------------------*/
+/************************************************************************
+* @Title: node_free
+* @Description: Libera la memoria asociada al nodo
+* @Input: Node *: Puntero al nodo a liberar
+* @Output: Node *: void
+*************************************************************************/
 void node_free(Node *node){
     if(node){
         free(data(node));
@@ -65,12 +62,13 @@ void node_free(Node *node){
 }
 
 /********************* Definición de funciones públicas ***********************/
-/*------------------------------------------------------------------------
- * @Title: list_ini
- * @Description: Reserva memoria e inicializa una lista
- * @Input: Ninguno
- * @Output: List *: Puntero a la lista creada
- ------------------------------------------------------------------------*/
+
+/**************************************************************************
+* @Title: list_ini
+* @Description: Reserva memoria e inicializa una lista
+* @Input: Ninguno
+* @Output: List *: Puntero a la lista creada
+***************************************************************************/
 List* list_ini(){
     List *list=NULL;
     
@@ -82,12 +80,12 @@ List* list_ini(){
     return list;
 }
 
-/*------------------------------------------------------------------------
- * @Title: list_free
- * @Description: Libera la memoria asociada a un laberinto
- * @Input: List *: Puntero a la lista a borrar.
- * @Output: void
- ------------------------------------------------------------------------*/
+/**************************************************************************
+* @Title: list_free
+* @Description: Libera la memoria de la lista
+* @Input: List *: Puntero de la lista a borrar.
+* @Output: void
+**************************************************************************/
  void free_list(List* list){
     if(!list)
         return;
@@ -97,13 +95,13 @@ List* list_ini(){
     free(list);
  }
  
- /*------------------------------------------------------------------------
- * @Title: list_insertFirst
- * @Description: Inserta un elemento al comienzo de la lista
- * @Input: List *: Puntero a la lista a modificar
-           EleList *:Puntero del elemento a introducir
- * @Output: List *: Puntero de la lista modificada.
- ------------------------------------------------------------------------*/
+ /***********************************************************************
+* @Title: list_insertFirst
+* @Description: Inserta un elemento al comienzo de la lista
+* @Input: List *: Puntero a la lista a insertar
+*         char *: Puntero del elemento a introducir
+* @Output: List *: Puntero de la lista modificada.
+************************************************************************/
  List* list_insertFirst(List* list, const char *elem){
     Node *pn;
     
@@ -127,13 +125,13 @@ List* list_ini(){
     return list;
  }
  
-/*------------------------------------------------------------------------
- * @Title: list_insertLast
- * @Description: Inserta un elemento al final de una lista
- * @Input: List *: Puntero a la lista a modificar.
-           EleList *: Puntero al elemento a introducir.
- * @Output: List *: Puntero a la lista modificada.
-------------------------------------------------------------------------*/
+/************************************************************************
+* @Title: list_insertLast
+* @Description: Inserta un elemento al final de una lista
+* @Input: List *: Puntero de la lista a modificar.
+*         char *: Puntero al elemento a introducir.
+* @Output: List *: Puntero a la lista modificada.
+*************************************************************************/
 List* list_insertLast(List* list, const char *elem){
     Node *pn, *naux;
     if(!list || !elem)
@@ -162,13 +160,12 @@ List* list_insertLast(List* list, const char *elem){
     return list;
 }
 
-/*------------------------------------------------------------------------
- * @Title: list_extractFirst
- * @Description: Inserta un elemento en orden copiando el elemento.
- * @Input: List *: Puntero a la lista a modificar.
-           EleList *: Puntero al elemento a introducir.
- * @Output: List *: Puntero a la lista modificada.
-------------------------------------------------------------------------*/
+/************************************************************************
+* @Title: list_extractFirst
+* @Description: Extrae el primer nodo de la lista y devuleve su informacion.
+* @Input: List *: Puntero de la lista.
+* @Output: char*: Informacion del nodo.
+*************************************************************************/
 char* list_extractFirst(List* list){
     Node *pn =NULL;
     char *pe = NULL;
@@ -189,12 +186,12 @@ char* list_extractFirst(List* list){
     return pe;
 }
 
-/*------------------------------------------------------------------------
- * @Title: list_extractLast
- * @Description: Extrae un elemento del final de una lista
- * @Input: List *: Puntero a la lista a extraer.
- * @Output: EleList *: Puntero al elemento extraído
-------------------------------------------------------------------------*/
+/************************************************************************
+* @Title: list_extractLast
+* @Description: Extrae el ultimo nodo de la lista y devuleve su informacion.
+* @Input: List *: Puntero de la lista.
+* @Output: char *: Puntero al elemento extraído
+**************************************************************************/
 char* list_extractLast(List* list){
     Node *pn = NULL;
     char *pe = NULL;
@@ -229,12 +226,12 @@ char* list_extractLast(List* list){
     return pe;
 }
 
-/*------------------------------------------------------------------------
- * @Title: list_isEmpty
- * @Description: Comprueba si una lista está vacía
- * @Input: List *: Puntero a la lista a  comprobar
- * @Output: Bool: TRUE si la lista está vacía y FALSE si no;
-------------------------------------------------------------------------*/
+/************************************************************************
+* @Title: list_isEmpty
+* @Description: Comprueba si una lista está vacía
+* @Input: List *: Puntero a la lista a  comprobar
+* @Output: int: 1 si la lista está vacía y 0 si no.
+*************************************************************************/
 int list_isEmpty(const List* list){
     if(!list)
         return 1;
@@ -244,12 +241,12 @@ int list_isEmpty(const List* list){
     return 0;
 }
 
-/*------------------------------------------------------------------------
- * @Title: list_size
- * @Description: Devuelve el tamaño de una lista
- * @Input: List *: Puntero a la lista a comprobar.
- * @Output: int: Número de elementos presentes en la lista
-------------------------------------------------------------------------*/
+/************************************************************************
+* @Title: list_size
+* @Description: Devuelve el tamanio de una lista
+* @Input: List *: Puntero a la lista a comprobar.
+* @Output: int: Tamanio de la lista
+*************************************************************************/
 int list_size(const List* list){
     Node *pn;
     int contador=0;
@@ -269,20 +266,18 @@ int list_size(const List* list){
     return contador;
 }
 
-/*------------------------------------------------------------------------
- * @Title: list_print
- * @Description: Imprime la lista pasada como argumento
- * @Input:  FILE *: Puntero al archivo en el que se va a imprimir la lista.
-            List *: Puntero a la lista a imprimir.
- * @Output: int: Número de caracteres impresos.
-------------------------------------------------------------------------*/
+/*************************************************************************
+* @Title: list_print
+* @Description: Imprime el contenido de lista y devuelve tu tamanio
+* @Input:  List *: Puntero a la lista a imprimir.
+* @Output: int: Tamanio de la lista
+*************************************************************************/
 int list_print(const List* list){
     Node *pn;
     int contador, aux;
     if(!list)
         return -1;
     
-    //fprintf(fd, "\nLista con %d elementos:\n", list_size(list));
     if(list_isEmpty(list))
         return 0;
     
@@ -290,7 +285,6 @@ int list_print(const List* list){
     
     while(pn!=NULL){
         fprintf(stdout, "%s", data(pn));
-        //fprintf(stdout,"\n");
         contador+=(aux+1);
         pn=next(pn);
     }
@@ -298,6 +292,13 @@ int list_print(const List* list){
     return contador;
 }
 
+/*************************************************************************
+* @Title: list_check_element
+* @Description: Comprueba si el elemento esta en la lista
+* @Input:  List*: Puntero a la lista a comprobar.
+*          char*: Elemento a buscar
+* @Output: int: 1 si se encuentra, 0 en caso contrario
+*************************************************************************/
 int list_check_element(const List* list, char* ip){
     Node *pn = NULL;
     char *pe = NULL;
@@ -313,9 +314,6 @@ int list_check_element(const List* list, char* ip){
     
     while(pn!=NULL){
 
-        //if(strcmp(pn->data, ip) == 0){
-        //    return 1;
-        //}
         pe = data(pn);
         if(strcmp(pe, ip) == 0){
             return 1;
@@ -326,6 +324,13 @@ int list_check_element(const List* list, char* ip){
     return 0;
 }
 
+/*************************************************************************
+* @Title: list_extractElement
+* @Description: Extrae el nodo de la lista que contenga el elemento
+* @Input:  List*: Puntero a la lista.
+*          char*: Elemento a buscar
+* @Output: int: 1 si se extrajo, 0 en caso contrario
+*************************************************************************/
 int list_extractElement(List* list, char* ip){
 
     Node *pn =NULL;
@@ -364,6 +369,12 @@ int list_extractElement(List* list, char* ip){
     return 0;
 }
 
+/*************************************************************************
+* @Title: list_getClientes
+* @Description: Devuelve los elementos guardados en la lista
+* @Input:  List*: Puntero a la lista.
+* @Output: char**: Elementos de la lista
+*************************************************************************/
 char** list_getClientes(const List* list){
 
     int i, j, size;
@@ -387,15 +398,6 @@ char** list_getClientes(const List* list){
     for(i = 0; i < size; i++){
 
         pe = data(pn);
-        //clientes[i] = (char*)malloc(sizeof(char)*strlen(pe));
-        //if(clientes[i] == NULL){
-        //    fprintf(stderr, "Error al copiar el cliente: %s", pe);
-        //    for(j = 0; j < i; j++)
-        //        free(clientes[j]);
-        //    free(clientes);
-        //    return NULL;
-        //}
-        //strcpy(clientes[i], pe);
         clientes[i] = pe;
         pn = next(pn);
     }
@@ -403,11 +405,17 @@ char** list_getClientes(const List* list){
     return clientes;
 }
 
+/*************************************************************************
+* @Title: list_copy
+* @Description: Copia la lista 1 en la lista 2
+* @Input:  List*: Lista a copiar
+*          List*: Nueva lista
+* @Output: int: 1 si se realizo la copia, 0 en caso contrario
+*************************************************************************/
 int list_copy(List* list1, List* list2) {
 
     Node *pn =NULL;
     Node *pa =NULL;
-    //char *pe = NULL;
 
     if(list1 == NULL || list2 == NULL)
         return 0;
