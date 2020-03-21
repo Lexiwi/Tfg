@@ -1,13 +1,9 @@
 /*********************************************************** 
 * File:   list.c
-* Author: Manuel Jiménez y Marcos Asenjo
+* Author: Jorge Gutierrez Diaz
 * 
-* Descripción: Define el TAD lista
+* Descripción: Lista para guardar los clientes en las tablas hash.
 *
-* Date: 22/03/2016
-* Asignatura: Programación II
-* Práctica: 3
-* Ejercicio: 4
 ***********************************************************/
  
 #include <stdio.h>
@@ -24,8 +20,8 @@
 
 /******************* Definicion de las estructuras de datos *******************/
 struct _NodeControl{
-    char* canal;
-    double tiempo;
+    char* canal;                    // Ip del canal
+    double tiempo;                  // Ultimo tiempo de llegada
     int info;
     struct _NodeControl *next;
 };
@@ -38,12 +34,13 @@ NodeControl * nodeControl_ini();
 void nodeControl_free(NodeControl *node);
 
 /********************* Definición de funciones privadas ***********************/
-/*------------------------------------------------------------------------
- * @Title: nodeControl_ini
- * @Description: Reserva memoria e inicializa un nodo
- * @Input: Ninguno
- * @Output: Node *: Puntero al nodo creado
-------------------------------------------------------------------------*/
+
+/************************************************************************
+* @Title: nodeControl_ini
+* @Description: Reserva memoria e inicializa un nodo
+* @Input: Ninguno
+* @Output: NodeControl *: Puntero al nodo creado
+************************************************************************/
 NodeControl *nodeControl_ini(){
     NodeControl *node=NULL;
     
@@ -57,12 +54,12 @@ NodeControl *nodeControl_ini(){
     return node;
 }
  
-/*------------------------------------------------------------------------
- * @Title: nodeControl_free
- * @Description: Libera la memoria asociada a un nodo
- * @Input: Node *: Puntero al nodo a liberar
- * @Output: Node *: void
-------------------------------------------------------------------------*/
+/*************************************************************************
+* @Title: nodeControl_free
+* @Description: Libera la memoria asociada a un nodo
+* @Input: NodeControl *: Puntero al nodo a liberar
+* @Output: void
+*************************************************************************/
 void nodeControl_free(NodeControl *node){
     if(node){
         free(canal(node));
@@ -71,12 +68,12 @@ void nodeControl_free(NodeControl *node){
 }
 
 /********************* Definición de funciones públicas ***********************/
-/*------------------------------------------------------------------------
- * @Title: list_ini
- * @Description: Reserva memoria e inicializa una lista
- * @Input: Ninguno
- * @Output: List *: Puntero a la lista creada
- ------------------------------------------------------------------------*/
+/*************************************************************************
+* @Title: listControl_ini
+* @Description: Reserva memoria e inicializa una lista
+* @Input: Ninguno
+* @Output: ListControl *: Puntero a la lista creada
+*************************************************************************/
 ListControl* listControl_ini(){
     ListControl *list=NULL;
     
@@ -88,12 +85,12 @@ ListControl* listControl_ini(){
     return list;
 }
 
-/*------------------------------------------------------------------------
- * @Title: list_free
- * @Description: Libera la memoria asociada a un laberinto
- * @Input: List *: Puntero a la lista a borrar.
- * @Output: void
- ------------------------------------------------------------------------*/
+/**************************************************************************
+* @Title: listControl_free
+* @Description: Libera la memoria asociada a la lista
+* @Input: ListControl *: Puntero a la lista a borrar.
+* @Output: void
+**************************************************************************/
  void listControl_free(ListControl* list){
     if(!list)
         return;
@@ -103,13 +100,15 @@ ListControl* listControl_ini(){
     free(list);
  }
  
- /*------------------------------------------------------------------------
- * @Title: list_insertFirst
- * @Description: Inserta un elemento al comienzo de la lista
- * @Input: List *: Puntero a la lista a modificar
-           EleList *:Puntero del elemento a introducir
- * @Output: List *: Puntero de la lista modificada.
- ------------------------------------------------------------------------*/
+/**************************************************************************
+* @Title: listControl_insertFirst
+* @Description: Inserta informacion al principio de la lista
+* @Input: ListControl *: Puntero a la lista a modificar
+*          char *: Ip del canal
+*          double: Ultimo tiempo de recepcion
+*          int: Informacion adicional 
+* @Output: ListControl *: Puntero de la lista modificada.
+**************************************************************************/
  ListControl* listControl_insertFirst(ListControl* list, const char *canal, const double tiempo, const int info){
     NodeControl *pn;
     
@@ -135,13 +134,15 @@ ListControl* listControl_ini(){
     return list;
  }
  
-/*------------------------------------------------------------------------
- * @Title: list_insertLast
- * @Description: Inserta un elemento al final de una lista
- * @Input: List *: Puntero a la lista a modificar.
-           EleList *: Puntero al elemento a introducir.
- * @Output: List *: Puntero a la lista modificada.
-------------------------------------------------------------------------*/
+/**************************************************************************
+* @Title: listControl_insertLast
+* @Description: Inserta informacion al final de la lista
+* @Input: ListControl *: Puntero a la lista a modificar
+*          char *: Ip del canal
+*          double: Ultimo tiempo de recepcion
+*          int: Informacion adicional 
+* @Output: ListControl *: Puntero de la lista modificada.
+**************************************************************************/
 ListControl* listControl_insertLast(ListControl* list, const char *canal, const double tiempo, const int info){
     NodeControl *pn, *naux;
     if(!list || !canal)
@@ -172,13 +173,12 @@ ListControl* listControl_insertLast(ListControl* list, const char *canal, const 
     return list;
 }
 
-/*------------------------------------------------------------------------
- * @Title: list_extractFirst
- * @Description: Inserta un elemento en orden copiando el elemento.
- * @Input: List *: Puntero a la lista a modificar.
-           EleList *: Puntero al elemento a introducir.
- * @Output: List *: Puntero a la lista modificada.
-------------------------------------------------------------------------*/
+/***************************************************************************
+* @Title: lisControlt_extractFirst
+* @Description: extrae el nodo de la primera posicion devolviendo la direccion del canal.
+* @Input: ListControl *: Puntero a la lista a extraer.
+* @Output: char *: direccion del canal extraido
+***************************************************************************/
 char* listControl_extractFirst(ListControl* list){
     NodeControl *pn =NULL;
     char *pe = NULL;
@@ -199,12 +199,12 @@ char* listControl_extractFirst(ListControl* list){
     return pe;
 }
 
-/*------------------------------------------------------------------------
- * @Title: list_extractLast
- * @Description: Extrae un elemento del final de una lista
- * @Input: List *: Puntero a la lista a extraer.
- * @Output: EleList *: Puntero al elemento extraído
-------------------------------------------------------------------------*/
+/***************************************************************************
+* @Title: lisControlt_extractLast
+* @Description: extrae el nodo de la ultima posicion devolviendo la direccion del canal.
+* @Input: ListControl *: Puntero a la lista a extraer.
+* @Output: char *: direccion del canal extraido
+***************************************************************************/
 char* listControl_extractLast(ListControl* list){
     NodeControl *pn = NULL;
     char *pe = NULL;
@@ -239,12 +239,12 @@ char* listControl_extractLast(ListControl* list){
     return pe;
 }
 
-/*------------------------------------------------------------------------
- * @Title: list_isEmpty
+/***************************************************************************
+ * @Title: listControl_isEmpty
  * @Description: Comprueba si una lista está vacía
- * @Input: List *: Puntero a la lista a  comprobar
- * @Output: Bool: TRUE si la lista está vacía y FALSE si no;
-------------------------------------------------------------------------*/
+ * @Input: ListControl *: Puntero a la lista a  comprobar
+ * @Output: int: 1 si la lista está vacía y 0 si no
+***************************************************************************/
 int listControl_isEmpty(const ListControl* list){
     if(!list)
         return 1;
@@ -254,12 +254,12 @@ int listControl_isEmpty(const ListControl* list){
     return 0;
 }
 
-/*------------------------------------------------------------------------
- * @Title: list_size
- * @Description: Devuelve el tamaño de una lista
- * @Input: List *: Puntero a la lista a comprobar.
- * @Output: int: Número de elementos presentes en la lista
-------------------------------------------------------------------------*/
+/***************************************************************************
+* @Title: listControl_size
+* @Description: Devuelve el tamaño de una lista
+* @Input: ListControl *: Puntero a la lista a comprobar.
+* @Output: int: Número de nodos presentes en la lista
+***************************************************************************/
 int listControl_size(const ListControl* list){
     NodeControl *pn;
     int contador=0;
@@ -279,13 +279,12 @@ int listControl_size(const ListControl* list){
     return contador;
 }
 
-/*------------------------------------------------------------------------
- * @Title: list_print
- * @Description: Imprime la lista pasada como argumento
- * @Input:  FILE *: Puntero al archivo en el que se va a imprimir la lista.
-            List *: Puntero a la lista a imprimir.
- * @Output: int: Número de caracteres impresos.
-------------------------------------------------------------------------*/
+/****************************************************************************
+* @Title: listControl_print
+* @Description: Imprime la lista pasada como argumento
+* @Input:  ListControl *: Puntero a la lista a imprimir.
+* @Output: int: Número de nodos en la lista.
+*****************************************************************************/
 int listControl_print(const ListControl* list){
     NodeControl *pn;
     int contador, aux;
@@ -309,6 +308,13 @@ int listControl_print(const ListControl* list){
     return contador;
 }
 
+/****************************************************************************
+* @Title: listControl_check_element
+* @Description: Comprueba si un canal esta en lista.
+* @Input:  ListControl *: Puntero a la lista.
+*          char*: Canal a buscar.
+* @Output: int: 1 si se encuentra, 0 si no.
+*****************************************************************************/
 int listControl_check_element(const ListControl* list, char* ip){
     NodeControl *pn = NULL;
     char *pe = NULL;
@@ -324,9 +330,6 @@ int listControl_check_element(const ListControl* list, char* ip){
     
     while(pn!=NULL){
 
-        //if(strcmp(pn->data, ip) == 0){
-        //    return 1;
-        //}
         pe = canal(pn);
         if(strcmp(pe, ip) == 0){
             return 1;
@@ -337,6 +340,13 @@ int listControl_check_element(const ListControl* list, char* ip){
     return 0;
 }
 
+/****************************************************************************
+* @Title: listControl_extractElement
+* @Description: extraemos de la lista el canal pasado por argumento.
+* @Input:  ListControl *: Puntero a la lista.
+*          char*: Canal a extraer.
+* @Output: int: 1 si se encuentra, 0 si no.
+*****************************************************************************/
 int listControl_extractElement(ListControl* list, char* ip){
 
     NodeControl *pn =NULL;
@@ -375,6 +385,12 @@ int listControl_extractElement(ListControl* list, char* ip){
     return 0;
 }
 
+/****************************************************************************
+* @Title: getCanal
+* @Description: devolvemos el nombre del canal del nodo.
+* @Input:  NodeControl *: nodo.
+* @Output: char*
+*****************************************************************************/
 char* getCanal(NodeControl* node) {
 
     if(node == NULL || canal(node) == NULL)
@@ -383,6 +399,12 @@ char* getCanal(NodeControl* node) {
     return canal(node);
 }
 
+/****************************************************************************
+* @Title: getTiempo
+* @Description: devolvemos el tiempo de recepcion del nodo.
+* @Input:  NodeControl *: nodo.
+* @Output: double
+*****************************************************************************/
 double getTiempo(NodeControl* node) {
 
     if(node == NULL)
@@ -391,6 +413,13 @@ double getTiempo(NodeControl* node) {
     return tiempo(node);
 }
 
+/****************************************************************************
+* @Title: setTiempo
+* @Description: modificamos el tiempo de recepcion del nodo.
+* @Input:  NodeControl *: nodo.
+*          double: nuevo tiempo
+* @Output: int: 0 si todo fue bien, -1 si no.
+*****************************************************************************/
 int setTiempo(NodeControl* node, double tmp) {
     if(node == NULL || tmp < 0)
         return -1;
@@ -399,6 +428,12 @@ int setTiempo(NodeControl* node, double tmp) {
     return 0;
 }
 
+/****************************************************************************
+* @Title: getInfo
+* @Description: devolvemos la informacion del nodo.
+* @Input:  NodeControl *: nodo.
+* @Output: int
+*****************************************************************************/
 int getInfo(NodeControl* node) {
 
     if(node == NULL)
@@ -407,6 +442,13 @@ int getInfo(NodeControl* node) {
     return info(node);
 }
 
+/****************************************************************************
+* @Title: setInfo
+* @Description: modificamos la informacion del nodo.
+* @Input:  NodeControl *: nodo.
+*          int: nueva informacion
+* @Output: int: 0 si todo fue bien, -1 si no.
+*****************************************************************************/
 int setInfo(NodeControl* node, int inf) {
     if(node == NULL || inf < 0)
         return -1;
@@ -415,6 +457,12 @@ int setInfo(NodeControl* node, int inf) {
     return 0;
 }
 
+/****************************************************************************
+* @Title: getNext
+* @Description: devolvemos el siguiente nodo.
+* @Input:  NodeControl *: nodo.
+* @Output: NodeControl *: nodo vecino.
+*****************************************************************************/
 NodeControl* getNext(NodeControl* node) {
 
     if(node == NULL)
@@ -423,6 +471,13 @@ NodeControl* getNext(NodeControl* node) {
     return node->next;
 }
 
+/****************************************************************************
+* @Title: getNode
+* @Description: devolvemos el nodo que contenga el mismo nombre
+* @Input:  ListControl *: puntero a la lista.
+           char*: nombre del canal a buscar.
+* @Output: NodeControl *
+*****************************************************************************/
 NodeControl* getNode(ListControl* list, char* canal) {
 
     NodeControl *pn =NULL;
@@ -453,6 +508,13 @@ NodeControl* getNode(ListControl* list, char* canal) {
 
 }
 
+/****************************************************************************
+* @Title: getNodePos
+* @Description: devolvemos el nodo que se situe en una determinada posicion
+* @Input:  ListControl *: puntero a la lista.
+*           int: posicion del nodo a devolver.
+* @Output: NodeControl *
+*****************************************************************************/
 NodeControl* getNodePos(ListControl* list, int pos) {
 
     NodeControl *pn =NULL;
@@ -479,6 +541,12 @@ NodeControl* getNodePos(ListControl* list, int pos) {
     return pn;
 }
 
+/****************************************************************************
+* @Title: listControl_copy
+* @Description: copiamos la lista
+* @Input:  ListControl *: puntero a la lista.
+* @Output: ListControl *
+*****************************************************************************/
 ListControl* listControl_copy(const ListControl* list) {
 
     NodeControl *pn =NULL;
