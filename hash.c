@@ -68,7 +68,6 @@ int eliminarTablaHash(TablaHash *tabla) {
 }
 
 int eliminarNodo(NodoHash* nodo) {
-	//NodoHash* nodo_aux;
 
 	if (nodo == NULL)
 		return ERROR;
@@ -86,9 +85,6 @@ int eliminarNodoRC(NodoHash* nodo) {
 	if (nodo->siguiente != NULL)
 		eliminarNodoRC(nodo->siguiente);
 
-	//if(nodo->info->nParam > 0){
-	//	free(nodo->info->tipo_args);
-	//}
 	free_list(nodo->lista);
 	free(nodo);
 
@@ -99,7 +95,6 @@ int funcionHash(TablaHash* tabla, char *clave) {
 	return strlen(clave) % tabla->tam;
 }
 
-//NodoHash* crearNodoHash(char *clave, void *info) {
 NodoHash* crearNodoHash(char *clave) {
 	NodoHash* nodo =  NULL;
 
@@ -134,7 +129,6 @@ int insertarNodoHash(TablaHash *tabla, char *clave, void *info, double tiempo) {
 	if(tabla == NULL || clave == NULL || info == NULL)
 		return ERROR;
 
-	//nodo = crearNodoHash(clave, info);
 	nodo = crearNodoHash(clave);
 	nodo->retAnterior = tiempo;
 	list_insertFirst(nodo->lista, (char*)info);
@@ -154,7 +148,7 @@ int insertarNodoHash(TablaHash *tabla, char *clave, void *info, double tiempo) {
 }
 
 NodoHash* buscarNodoHash(TablaHash *tabla, char *clave) {
-	//NodoHash* nodo;
+
 	NodoHash* nodo_aux;
 	int pos;
 
@@ -175,7 +169,7 @@ NodoHash* buscarNodoHash(TablaHash *tabla, char *clave) {
 }
 
 int checkNodoHash(TablaHash *tabla, char *clave) {
-	//NodoHash* nodo;
+
 	NodoHash* nodo_aux;
 	int pos;
 
@@ -309,7 +303,7 @@ int setRetardo(NodoHash* nodo, double ret) {
 		return -1;
 
 	nodo->ret = nodo->ret + ret;
-	//printf("Ret acumulado: %f\n", nodo->ret);
+
 	return 0;
 }
 
@@ -327,7 +321,7 @@ int setRetardoCuadrado(NodoHash* nodo, double ret) {
 		return -1;
 	
 	nodo->retCuadrado = nodo->retCuadrado + ret;
-	//printf("RetC acumulado: %f\n", nodo->retCuadrado);
+
 	return 0;
 }
 
@@ -404,7 +398,7 @@ void printTablaHash(TablaHash *tabla) {
 
 			aux = tabla->nodos[i];
 			while(aux != NULL){
-			//for (aux = tabla->nodos[i]; aux->siguiente != NULL; aux = aux->siguiente) {
+			
 
 				fprintf(stdout, "******** %s ********\n\n", aux->clave);
 				fprintf(stdout, "Clientes:");

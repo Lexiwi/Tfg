@@ -1,3 +1,11 @@
+/*********************************************************** 
+* File:   hash.h
+* Author: Jorge Gutierrez Diaz
+* 
+* Descripción: Hash para guardar la informacion de cada arbol.
+*
+***********************************************************/
+
 #ifndef HASH
 #define HASH
 
@@ -104,24 +112,142 @@ int getNumNodes(TablaHash *tabla);
 */
 List* nodoGetInfo(NodoHash* nodo);
 
+/**
+*  Devuelve la ip del arbol
+* Parametro: nodo. Nodo Hash
+* Devuelve: Ip del arbol
+*/
 char* getClave(NodoHash* nodo);
 
+/**
+*  Devuelve el numero de paquetes recibidos de ese arbol
+* Parametro: nodo. Nodo Hash
+* Devuelve: Numero de paquetes
+*/
 int getNumRecibidos(NodoHash* nodo);
+
+/**
+*  Actualiza el numero de paquetes recibidos de ese arbol
+* Parametro: nodo. Nodo Hash
+* Parametro: num. Numero de paquetes
+* Devuelve: 0 si fue todo bien, -1 si no
+*/
 int setNumRecibidos(NodoHash* nodo, int num);
+
+/**
+*  Devuelve el numero de paquetes perdidos de ese arbol
+* Parametro: nodo. Nodo Hash
+* Devuelve: Numero de paquetes perdidos
+*/
 int getNumPerdidos(NodoHash* nodo);
+
+/**
+*  Actualiza el numero de paquetes perdidos de ese arbol
+* Parametro: nodo. Nodo Hash
+* Parametro: num. Numero de paquetes
+* Devuelve: 0 si fue todo bien, -1 si no
+*/
 int setNumPerdidos(NodoHash* nodo, int num);
+
+/**
+*  Devuelve el tiempo del ultimo intervalo
+* Parametro: nodo. Nodo Hash
+* Devuelve: Tiempo
+*/
 double getRetardo(NodoHash* nodo);
+
+/**
+*  Actualiza el tiempo del ultimo intervalo
+* Parametro: nodo. Nodo Hash
+* Parametro: double. Tiempo
+* Devuelve: 0 si fue todo bien, -1 si no
+*/
 int setRetardo(NodoHash* nodo, double ret);
+
+/**
+*  Devuelve el tiempo del ultimo intervalo al cuadrado
+* Parametro: nodo. Nodo Hash
+* Devuelve: Tiempo
+*/
 double getRetardoCuadrado(NodoHash* nodo);
+
+/**
+*  Actualiza el tiempo del ultimo intervalo al cuadrado
+* Parametro: nodo. Nodo Hash
+* Parametro: double. Tiempo
+* Devuelve: 0 si fue todo bien, -1 si no
+*/
 int setRetardoCuadrado(NodoHash* nodo, double ret);
+
+/**
+*  Devuelve el tiempo de llegada del ultimo paquete
+* Parametro: nodo. Nodo Hash
+* Devuelve: Tiempo
+*/
 double getLlegadaAnterior(NodoHash* nodo);
+
+/**
+*  Actualiza el tiempo de llegada del ultimo paquete
+* Parametro: nodo. Nodo Hash
+* Parametro: double. Tiempo
+* Devuelve: 0 si fue todo bien, -1 si no
+*/
 int setLlegadaAnterior(NodoHash* nodo, double ret);
+
+/**
+*  Devuelve el numero de bytes acumulado
+* Parametro: nodo. Nodo Hash
+* Devuelve: Bytes
+*/
 int getNumBytes(NodoHash* nodo);
+
+/**
+*  Actualiza el numero de bytes acumulado
+* Parametro: nodo. Nodo Hash
+* Parametro: int. Bytes
+* Devuelve: 0 si fue todo bien, -1 si no
+*/
 int setNumBytes(NodoHash* nodo, int num);
+
+/**
+*  Devuelve el numero de anomalias igmp
+* Parametro: nodo. Nodo Hash
+* Devuelve: anomalias
+*/
 int getNumIgmpErr(NodoHash* nodo);
+
+/**
+*  Actualiza el numero de anomalias igmp
+* Parametro: nodo. Nodo Hash
+* Parametro: int. Anomalias
+* Devuelve: 0 si fue todo bien, -1 si no
+*/
 int setNumIgmpErr(NodoHash* nodo, int num);
+
+/**
+*  Devuelve el nodo vecino
+* Parametro: nodo. Nodo Hash
+* Devuelve: nodo vecinp
+*/
 NodoHash* getSiguiente(NodoHash *nodo);
+
+/**
+*  Imprime la tabla Hash
+* Parametro: tabla. Tabla Hash
+*/
 void printTablaHash(TablaHash *tabla);
+
+/**
+*  Coapia la tabla Hash
+* Parametro: nodo. Nodo Hash
+* Devuelve: Tabla Hash copiada
+*/
 TablaHash* copiarTablaHash(const TablaHash *tabla1);
+
+/**
+*  Coapia nodo Hash
+* Parametro: nodo. Nodo Hash
+* Devuelve: Nodo Hash copiado
+*/
 NodoHash* copiarNodoHash(NodoHash *nodo);
 #endif
