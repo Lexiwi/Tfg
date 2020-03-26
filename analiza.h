@@ -28,7 +28,7 @@
 #define LEN_ETH 14
 #define LEN_UDP 8
 #define RAW_OFF 2
-#define DROP_FILE_NAME "file_drop"
+#define DROP_FILE_NAME "file_drop.pcap"
 #define DEV "enp1s0"
 
 struct sniff_ip {
@@ -48,19 +48,12 @@ struct sniff_ip {
     struct in_addr ip_dst; /* dest address */
 };
 
-typedef struct _PcapDrop{
-
-  int porcentaje;
-  pcap_dumper_t *dumpfile;
-
-} PcapDrop;
-
 char * conseguir_dev();
 bpf_u_int32 conseguir_direccion_red();
 pcap_t * abrir_captura_online(char* dev);
 pcap_t * abrir_captura_offline(char* filename);
 void obtener_trafico_entrante(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
-void provoca_perdidas(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
+void provoca_perdidas(pcap_dumper_t *dumpfile, int porcentaje, const struct pcap_pkthdr *header, const u_char *packet);
 void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla, ListControl* igmp);
 void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla, ListControl* igmp, ListControl* udp, Ruido* ruido);
 int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHash* tabla, ListControl* igmp, ListControl* udp, Ruido* ruido);

@@ -1,5 +1,7 @@
 #include "analiza.h"
 
+int segGlobal = -1;
+
 char * conseguir_dev() {
 
     char *dev;
@@ -102,21 +104,25 @@ void obtener_trafico_entrante(u_char *args, const struct pcap_pkthdr *header, co
     return;
 }
 
-void provoca_perdidas(u_char *args, const struct pcap_pkthdr *header, const u_char *packet) {
+void provoca_perdidas(pcap_dumper_t *dumpfile, int porcentaje, const struct pcap_pkthdr *header, const u_char *packet) {
 
     double randomNumber = 0.0;
-    double porcentaje = 0.0;
-    u_char *dumpfile;
-    PcapDrop *pd = NULL;
+    double por = 0.0;
+    u_char *dump;
+    u_char protocolo;
+    const u_char *ip_header;
 
-    pd = (PcapDrop*)args;
-    dumpfile = (u_char*)pd->dumpfile;
-    porcentaje = pd->porcentaje;
+    dump = (u_char*)dumpfile;
+    por = (double)porcentaje/100;
 
     randomNumber = (double)rand() / (double)((unsigned)RAND_MAX + 1);
+    /* Nos colocamos al principio de la cabecera IP */
+    ip_header = packet + LEN_ETH;
+    /* Vamos que protocolo se esta utilizando*/
+    protocolo = (u_char)*(ip_header + 9);
 
-    if(randomNumber > (double)(porcentaje/100)) {
-        pcap_dump(dumpfile, header, packet);
+    if((randomNumber > por) || protocolo == IPPROTO_IGMP) {
+        pcap_dump(dump, header, packet);
     }
 
     return;
@@ -267,7 +273,20 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
     struct ether_header *eth_header;
     u_char protocolo;
     const u_char *ip_header;
+    int aux = 0;
+    
+    if(segGlobal == -1){
+        //printf("Primer paquete: %ld\n", header->ts.tv_sec);
+        segGlobal = header->ts.tv_sec + 10;
+        //printf("Primer Global: %d\n\n", segGlobal);
+    }
 
+    if(header->ts.tv_sec >= segGlobal){
+        //printf("Global: %d\nActual: %ld\n\n", segGlobal, header->ts.tv_sec);
+        segGlobal = header->ts.tv_sec + 10;
+        aux = 1;
+    }
+    
     /* Nos aseguramos que sea un paquete IP */
     eth_header = (struct ether_header *) packet;
     if (ntohs(eth_header->ether_type) != ETHERTYPE_IP) {
@@ -286,10 +305,15 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
     // Caso UDP
     else if (protocolo == IPPROTO_UDP)
         obtener_rtp(header, packet, tabla, igmp, udp, ruido);
-    else 
-        printf("Ni IGMP ni UDP\n");
+    else {}
+        //printf("Ni IGMP ni UDP\n");
     
-    return 0;
+    if(aux == 1)
+        return 1;
+    else
+        return 0;
+    
+    //return 0;
 }
 
 void errorIgmp(TablaHash* tabla, ListControl* igmp, ListControl* udp) {

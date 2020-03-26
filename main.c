@@ -10,6 +10,7 @@
 
 pcap_t *handle = NULL;      // Manejador pcap
 sem_t mutex;                // Semaforo
+sem_t wake;                 // Semaforo
 int para = 1;
 
 TablaHash* tabla = NULL;
@@ -46,7 +47,7 @@ void* hilo_baseDatos(void* arg) {
     //Inicializamos la base de datos
     
     while( para == 1 ){
-        sleep(10);
+        sem_wait(&wake);
         sem_wait(&mutex);
         auxt = copiarTablaHash(tabla);
         auxi = listControl_copy(igmp);
@@ -66,17 +67,17 @@ int main(int argc, char *argv[]) {
     int accion = -1;                // 1 - Monitoriza | 2 - Calcula QoS | 3 - Genera perdidas
     int opt = -1;                   // Variable para argumentos
     int res = 0;
+    int por = 0;
     char filename[100];
     
     const u_char *packet;
     struct pcap_pkthdr *packet_header;
-
-    PcapDrop *pd = NULL;            // Estructura para provocar perdidas
+    pcap_dumper_t *dumpfile;
 
     pthread_t hilo_1;
     pthread_t hilo_2;
 
-    while( (opt = getopt(argc, argv, ":OF:lsm::") ) != -1) {
+    while( (opt = getopt(argc, argv, ":OF:l:sm") ) != -1) {
         switch(opt) {
             case 'O':
                 // Abrimos captura en vivo/ Liberar memoria de handle
@@ -98,22 +99,14 @@ int main(int argc, char *argv[]) {
             case 'l':
                 // Abrimos fichero dump y provocamos perdidas/ Lberar memoria de handle y dump
                 accion = 3;
-                pd = (PcapDrop *)malloc(sizeof(PcapDrop));
-                if (pd == NULL) {
-                    fprintf(stdout, "Error al reservar memoria para PcapDrop\n");
-                    pcap_close(handle);
-                    free(handle);
-                    return -1;
-                }
-                pd->dumpfile = pcap_dump_open(handle, DROP_FILE_NAME);
-                if (pd->dumpfile == NULL) {
+                dumpfile = pcap_dump_open(handle, DROP_FILE_NAME);
+                if (dumpfile == NULL) {
                     fprintf(stdout, "Error al abrir un fichero dump\n");
-                    free(pd);
                     pcap_close(handle);
                     free(handle);
                     return -1;
                 }
-                pd->porcentaje = atoi(optarg);
+                por = atoi(optarg);
                 break;
             
             case 's':
@@ -161,10 +154,11 @@ int main(int argc, char *argv[]) {
                 break;
             
             sem_init(&mutex, 0, 1);
+            sem_init(&wake, 0, 0);
             pthread_create(&hilo_1, NULL, *hilo_errIGMP, NULL);
             pthread_create(&hilo_2, NULL, *hilo_baseDatos, NULL);
 
-            signal(SIGINT, finaliza_monitorizacion);   //<------------- TODO
+            signal(SIGINT, finaliza_monitorizacion);
             while ((res = pcap_next_ex(handle, &packet_header, &packet)) >= 0) {
 
                 if (res == 0) {
@@ -173,10 +167,12 @@ int main(int argc, char *argv[]) {
                 }
                 sem_wait(&mutex);
                 if ( leer_paquete(packet_header, packet, tabla, igmp, udp, ruido) != 0) {
+                    sem_post(&wake);
                 }
                 sem_post(&mutex);
             }
             para = 0;
+            sem_post(&wake);
             pthread_join(hilo_1, NULL);
             pthread_join(hilo_2, NULL);
 
@@ -188,13 +184,21 @@ int main(int argc, char *argv[]) {
             //Libera mysql_library_init() que se ejecuta dentro de mysql_init()
             mysql_library_end();
             sem_destroy(&mutex);
+            sem_destroy(&wake);
             break;
 
         case 3:
             signal(SIGINT, finaliza_monitorizacion);
-            pcap_loop(handle, 2, provoca_perdidas, (u_char*)pd);
-            pcap_dump_close(pd->dumpfile);
-            free(pd);
+            while ((res = pcap_next_ex(handle, &packet_header, &packet)) >= 0) {
+
+                if (res == 0) {
+                    /*Sobrepasado timeout*/
+                    continue;
+                }
+                provoca_perdidas(dumpfile, por, packet_header, packet);
+            }
+            //pcap_loop(handle, 2, provoca_perdidas, (u_char*)pd);
+            pcap_dump_close(dumpfile);
             break;
 
         default:
