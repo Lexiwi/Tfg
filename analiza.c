@@ -219,6 +219,7 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
 
     //Microsegundos 1000000L | Mili 1000
     ret = ((header->ts.tv_sec)*1000000L+(header->ts.tv_usec));
+    //printf("%f\n", ret);
     /* Nos colocamos al principio de la cabecera IP */
     ip_header = packet + LEN_ETH;
     /* Obtenemos el campo IHL para averiguar el tamanio de la cabecera IP */
@@ -276,13 +277,9 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
     int aux = 0;
     
     if(segGlobal == -1){
-        //printf("Primer paquete: %ld\n", header->ts.tv_sec);
         segGlobal = header->ts.tv_sec + 10;
-        //printf("Primer Global: %d\n\n", segGlobal);
     }
-
     if(header->ts.tv_sec >= segGlobal){
-        //printf("Global: %d\nActual: %ld\n\n", segGlobal, header->ts.tv_sec);
         segGlobal = header->ts.tv_sec + 10;
         aux = 1;
     }

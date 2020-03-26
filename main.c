@@ -40,24 +40,25 @@ void* hilo_errIGMP(void* arg) {
 
 void* hilo_baseDatos(void* arg) {
 
-    TablaHash* auxt = NULL;
-    ListControl* auxi = NULL;
-    Ruido* auxr = NULL;
+    //TablaHash* auxt = NULL;
+    //ListControl* auxi = NULL;
+    //Ruido* auxr = NULL;
     
     //Inicializamos la base de datos
     
     while( para == 1 ){
         sem_wait(&wake);
         sem_wait(&mutex);
-        auxt = copiarTablaHash(tabla);
-        auxi = listControl_copy(igmp);
-        auxr = ruido_copy(ruido);
-        // QUE HAGO SI ALGUNA COPIA FALLA?
+        //auxt = copiarTablaHash(tabla);
+        //auxi = listControl_copy(igmp);
+        //auxr = ruido_copy(ruido);
+        //sem_post(&mutex);
+        //volcarTabla(db, auxt, auxi, auxr);
+        //listControl_free(auxi);
+        //ruido_free(auxr);
+        //eliminarTablaHash(auxt);
+        volcarTabla(db, tabla, igmp, ruido);
         sem_post(&mutex);
-        volcarTabla(db, auxt, auxi, auxr);
-        listControl_free(auxi);
-        ruido_free(auxr);
-        eliminarTablaHash(auxt);
     }
     return NULL;
 }
@@ -162,11 +163,10 @@ int main(int argc, char *argv[]) {
             while ((res = pcap_next_ex(handle, &packet_header, &packet)) >= 0) {
 
                 if (res == 0) {
-                    /*Sobrepasado timeout*/
-                    continue;
+                    continue; /*Sobrepasado timeout*/
                 }
                 sem_wait(&mutex);
-                if ( leer_paquete(packet_header, packet, tabla, igmp, udp, ruido) != 0) {
+                if ( leer_paquete(packet_header, packet, tabla, igmp, udp, ruido) == 1) {
                     sem_post(&wake);
                 }
                 sem_post(&mutex);
