@@ -11,6 +11,7 @@
 pcap_t *handle = NULL;      // Manejador pcap
 sem_t mutex;                // Semaforo
 sem_t wake;                 // Semaforo
+sem_t anomalia;             // Semaforo
 int para = 1;
 
 TablaHash* tabla = NULL;
@@ -30,7 +31,7 @@ void finaliza_monitorizacion(int signum) {
 void* hilo_errIGMP(void* arg) {
 
     while( para == 1 ){
-        sleep(1);
+        sem_wait(&anomalia);
         sem_wait(&mutex);
         errorIgmp(tabla, igmp, udp);
         sem_post(&mutex);
@@ -39,24 +40,10 @@ void* hilo_errIGMP(void* arg) {
 }
 
 void* hilo_baseDatos(void* arg) {
-
-    //TablaHash* auxt = NULL;
-    //ListControl* auxi = NULL;
-    //Ruido* auxr = NULL;
-    
-    //Inicializamos la base de datos
     
     while( para == 1 ){
         sem_wait(&wake);
         sem_wait(&mutex);
-        //auxt = copiarTablaHash(tabla);
-        //auxi = listControl_copy(igmp);
-        //auxr = ruido_copy(ruido);
-        //sem_post(&mutex);
-        //volcarTabla(db, auxt, auxi, auxr);
-        //listControl_free(auxi);
-        //ruido_free(auxr);
-        //eliminarTablaHash(auxt);
         volcarTabla(db, tabla, igmp, ruido);
         sem_post(&mutex);
     }
@@ -156,6 +143,7 @@ int main(int argc, char *argv[]) {
             
             sem_init(&mutex, 0, 1);
             sem_init(&wake, 0, 0);
+            sem_init(&anomalia, 0, 0);
             pthread_create(&hilo_1, NULL, *hilo_errIGMP, NULL);
             pthread_create(&hilo_2, NULL, *hilo_baseDatos, NULL);
 
@@ -166,13 +154,26 @@ int main(int argc, char *argv[]) {
                     continue; /*Sobrepasado timeout*/
                 }
                 sem_wait(&mutex);
-                if ( leer_paquete(packet_header, packet, tabla, igmp, udp, ruido) == 1) {
-                    sem_post(&wake);
+                res = leer_paquete(packet_header, packet, tabla, igmp, udp, ruido);
+                switch(res){
+                    case 1:
+                        sem_post(&wake);
+                        break;
+                    case 2:
+                        sem_post(&anomalia);
+                        break;
+                    case 3:
+                        sem_post(&wake);
+                        sem_post(&anomalia);
+                        break;
+                    default:
+                        break;
                 }
                 sem_post(&mutex);
             }
             para = 0;
             sem_post(&wake);
+            sem_post(&anomalia);
             pthread_join(hilo_1, NULL);
             pthread_join(hilo_2, NULL);
 
@@ -185,6 +186,7 @@ int main(int argc, char *argv[]) {
             mysql_library_end();
             sem_destroy(&mutex);
             sem_destroy(&wake);
+            sem_destroy(&anomalia);
             break;
 
         case 3:

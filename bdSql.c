@@ -161,11 +161,15 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
                 numErrH = getNumIgmpErr(aux);
                 bytesH = getNumBytes(aux);
 
-                retQuery = retH-retQuery;
                 numPaqQuery = numPaqH-numPaqQuery;
                 numPerQuery = numPerH-numPerQuery;
                 numErrQuery = numErrH-numErrQuery;
                 bytesQuery = bytesH-bytesQuery;
+
+                if(numPaqQuery == 0.0)
+                    retQuery = retH-retQuery;
+                else
+                    retQuery = (double)((retH-retQuery)/numPaqQuery);
 
                 if((numPaqH+numPerH) == 0)
                     porH = 0.0;

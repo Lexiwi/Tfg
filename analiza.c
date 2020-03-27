@@ -1,6 +1,7 @@
 #include "analiza.h"
 
-int segGlobal = -1;
+int segTiempo = -1;
+int segAnomalia = -1;
 
 char * conseguir_dev() {
 
@@ -276,12 +277,26 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
     const u_char *ip_header;
     int aux = 0;
     
-    if(segGlobal == -1){
-        segGlobal = header->ts.tv_sec + 10;
+    if(segTiempo == -1){
+        segTiempo = header->ts.tv_sec + 10;
+        segAnomalia = header->ts.tv_sec + 1;
     }
-    if(header->ts.tv_sec >= segGlobal){
-        segGlobal = header->ts.tv_sec + 10;
+
+    if(header->ts.tv_sec >= segTiempo && header->ts.tv_sec >= segAnomalia){
+        segTiempo = header->ts.tv_sec + 10;
+        segAnomalia = header->ts.tv_sec + 1;
+        aux = 3;
+    }
+    else if(header->ts.tv_sec >= segTiempo){
+        segTiempo = header->ts.tv_sec + 10;
         aux = 1;
+    }
+    else if(header->ts.tv_sec >= segAnomalia){
+        segAnomalia = header->ts.tv_sec + 1;
+        aux = 2;
+    }
+    else{
+        aux = 0;
     }
     
     /* Nos aseguramos que sea un paquete IP */
@@ -304,13 +319,7 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
         obtener_rtp(header, packet, tabla, igmp, udp, ruido);
     else {}
         //printf("Ni IGMP ni UDP\n");
-    
-    if(aux == 1)
-        return 1;
-    else
-        return 0;
-    
-    //return 0;
+    return aux;
 }
 
 void errorIgmp(TablaHash* tabla, ListControl* igmp, ListControl* udp) {
