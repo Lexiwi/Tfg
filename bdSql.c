@@ -14,6 +14,7 @@
 
 /********************* Declaracion de funciones privadas **********************/
 double calculaVarianza(int numPaq, int numPaqQuery, double ret, double retQuery, double retC, double retCQuery);
+double calculaMOSS(double tasaPerdidas);
 
 /********************* Definición de funciones privadas ***********************/
 
@@ -101,6 +102,7 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
     double retQuery, retCQuery, var = 0.0; 
     double retH = 0.0;
     double porH, porQ = 1.0;
+    double moss = 0.0;
     char *err_msg = 0;
     char *eptr;
     char sql[350], query[150];
@@ -182,11 +184,11 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
                 else{
                     porQ = ((double)numPerQuery/(numPerQuery+numPaqQuery))*100;
                 }
-                //printf("Mc: %f, S: %.f\n", getLlegadaAnterior(aux)/1000000,getLlegadaAnterior(aux)/1000000);
+                moss = calculaMOSS(porQ);
                 mysql_free_result(result);
-				sprintf(sql, "INSERT INTO Canales VALUES(\'%s\', %.f, %d, %d, %d, %d, %.f, %.f, %.f, %.f, %.f, %d, %d, %d, %d, %.f)",
+				sprintf(sql, "INSERT INTO Canales VALUES(\'%s\', %.f, %d, %d, %d, %d, %.f, %.f, %.f, %.f, %.f, %d, %d, %d, %d, %.f, %.1f)",
                     getClave(aux), getLlegadaAnterior(aux)/1000000,  numPaqH, numPaqQuery, numPerH, numPerQuery, porH, porQ,
-                    retH, retQuery, getRetardoCuadrado(aux), numErrH, numErrQuery, bytesH, bytesQuery, var);
+                    retH, retQuery, getRetardoCuadrado(aux), numErrH, numErrQuery, bytesH, bytesQuery, var, moss);
                 rc = mysql_query(db, sql);
                 if (rc != 0 ) {
                     fprintf(stderr, "SQL error en Canales: %s\n", mysql_error(db));      
@@ -284,4 +286,14 @@ double calculaVarianza(int numPaq, int numPaqQuery, double ret, double retQuery,
     var = sqrt(vRet);
     return var;
 
+}
+
+double calculaMOSS(double tasaPerdidas) {
+    double r = 0.0;
+    double p = 0.0;
+
+    r = (tasaPerdidas/2.0)+1.0;
+    p = pow(r,3);
+    r = 1.0+4.0/p;
+    return r;
 }
