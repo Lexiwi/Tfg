@@ -225,6 +225,21 @@ int getNumIgmpErr(NodoHash* nodo);
 int setNumIgmpErr(NodoHash* nodo, int num);
 
 /**
+*  Devuelve el numero de anomalias igmp
+* Parametro: nodo. Nodo Hash
+* Devuelve: anomalias
+*/
+int getTipo(NodoHash* nodo);
+
+/**
+*  Actualiza el numero de anomalias igmp
+* Parametro: nodo. Nodo Hash
+* Parametro: int. Anomalias
+* Devuelve: 0 si fue todo bien, -1 si no
+*/
+int setTipo(NodoHash* nodo, int tipo);
+
+/**
 *  Devuelve el nodo vecino
 * Parametro: nodo. Nodo Hash
 * Devuelve: nodo vecinp

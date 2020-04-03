@@ -186,9 +186,9 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
                 }
                 moss = calculaMOSS(porQ);
                 mysql_free_result(result);
-				sprintf(sql, "INSERT INTO Canales VALUES(\'%s\', %.f, %d, %d, %d, %d, %.f, %.f, %.f, %.f, %.f, %d, %d, %d, %d, %.f, %.1f)",
+				sprintf(sql, "INSERT INTO Canales VALUES(\'%s\', %.f, %d, %d, %d, %d, %.f, %.f, %.f, %.f, %.f, %d, %d, %d, %d, %.f, %.1f, %d)",
                     getClave(aux), getLlegadaAnterior(aux)/1000000,  numPaqH, numPaqQuery, numPerH, numPerQuery, porH, porQ,
-                    retH, retQuery, getRetardoCuadrado(aux), numErrH, numErrQuery, bytesH, bytesQuery, var, moss);
+                    retH, retQuery, getRetardoCuadrado(aux), numErrH, numErrQuery, bytesH, bytesQuery, var, moss, getTipo(aux));
                 rc = mysql_query(db, sql);
                 if (rc != 0 ) {
                     fprintf(stderr, "SQL error en Canales: %s\n", mysql_error(db));      

@@ -12,7 +12,8 @@ struct _NodoHash {
 	double retCuadrado;			/*!< Retardo al cuadrado total */
 	double retAnterior;			/*!< Retardo del paquete anterior */
 	int bytes;					/*!< Num. bytes total */
-	int igmpErr;				/*!< NUm. errores IGMP */
+	int igmpErr;				/*!< Num. errores IGMP */
+	int tipo;					/*!< Tipo de arbol: 0 multimedia, 1 control */
 	NodoHash *siguiente;		/*!< Nodo siguiente si hay colisión. NULL si no */
 };
 
@@ -115,7 +116,7 @@ NodoHash* crearNodoHash(char *clave) {
 	nodo->retAnterior = 0.0;
 	nodo->bytes = 0;
 	nodo->igmpErr = 0;
-
+	nodo->tipo = -1;
 	nodo->siguiente = NULL;
 
 	return nodo;
@@ -376,6 +377,23 @@ int setNumIgmpErr(NodoHash* nodo, int num) {
     return 0;
 }
 
+int getTipo(NodoHash* nodo) {
+
+	if (nodo == NULL)
+		return -1;
+
+    return nodo->tipo;
+}
+
+int setTipo(NodoHash* nodo, int tipo) {
+	
+	if (nodo == NULL)
+		return -1;
+
+    nodo->tipo = tipo;
+    return 0;
+}
+
 NodoHash* getSiguiente(NodoHash *nodo) {
 
 	if (nodo == NULL)
@@ -409,6 +427,7 @@ void printTablaHash(TablaHash *tabla) {
 				fprintf(stdout, "Retardo cuadrado: %f\n", aux->retCuadrado);
 				fprintf(stdout, "Bytes totales: %d\n", aux->bytes);
 				fprintf(stdout, "Errores IGMP totales: %d\n", aux->igmpErr);
+				fprintf(stdout, "Tipo de arbol: %d\n", aux->tipo);
 				fprintf(stdout, "\n\n\n");
 
 				aux = aux->siguiente;
@@ -467,6 +486,7 @@ NodoHash* copiarNodoHash(NodoHash *nodo) {
 	aux->retAnterior = nodo->retAnterior;
 	aux->bytes = nodo->bytes;
 	aux->igmpErr = nodo->igmpErr;
+	aux->tipo = nodo->tipo;
 	aux->siguiente = copiarNodoHash(nodo->siguiente);
 	
 	return aux;

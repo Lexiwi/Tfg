@@ -231,10 +231,16 @@ void obtener_rtp(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
     /*Cabecera RTP*/
     rtp_header = packet + LEN_ETH + ip_header_length + LEN_UDP;
     //printf("RTP version: %d\n", rtp_header[RAW_OFF]>>6);
-    if(rtp_header[0]>>6 != 2)
-        return;
 
     if ((nodo = buscarNodoHash(tabla, clave)) != NULL) {
+
+        if(getTipo(nodo) == -1){
+            if(rtp_header[0]>>6 != 2)
+                setTipo(nodo, 1);
+            else 
+                setTipo(nodo, 0);
+        }
+        
 
         // Comprobacion de error IGMP
         node = getNode(igmp, clave);
