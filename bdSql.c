@@ -126,7 +126,7 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
 			aux = tabla->nodos[i];
 			while(aux != NULL){
 
-                sprintf(query, "SELECT Ret,RetC,NumPaq,NumPer,NumErr,Bytes FROM Canales WHERE Ip=\'%s\' ORDER BY NumPaq DESC LIMIT 1", getClave(aux));
+                sprintf(query, "SELECT Ret,RetC,NumPaq,NumPer,NumErr,Bytes FROM Canales WHERE Ip=\'%s\' ORDER BY id DESC LIMIT 1", getClave(aux));
                 rc = mysql_query(db, query);
                 if (rc != 0 ) {
                     fprintf(stderr, "SQL error: %s\n", mysql_error(db));       
@@ -186,7 +186,7 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
                 }
                 moss = calculaMOSS(porQ);
                 mysql_free_result(result);
-				sprintf(sql, "INSERT INTO Canales VALUES(\'%s\', %.f, %d, %d, %d, %d, %.f, %.f, %.f, %.f, %.f, %d, %d, %d, %d, %.f, %.1f, %d)",
+				sprintf(sql, "INSERT INTO Canales(Ip,Tiempo,NumPaq,NumPaqDif, NumPer,NumPerDif, PorPer,PorPerDif, Ret,RetDif,RetC,NumErr,NumErrDif,Bytes,BytesDiff,Jitter,Moss,Tipo) VALUES(\'%s\', %.f, %d, %d, %d, %d, %.f, %.f, %.f, %.f, %.f, %d, %d, %d, %d, %.f, %.1f, %d)",
                     getClave(aux), getLlegadaAnterior(aux)/1000000,  numPaqH, numPaqQuery, numPerH, numPerQuery, porH, porQ,
                     retH, retQuery, getRetardoCuadrado(aux), numErrH, numErrQuery, bytesH, bytesQuery, var, moss, getTipo(aux));
                 rc = mysql_query(db, sql);
