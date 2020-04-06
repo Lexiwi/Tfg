@@ -386,8 +386,6 @@ char** list_getClientes(const List* list){
         return NULL;
 
     size = list_size(list);
-
-
     clientes = (char**)malloc(size*sizeof(char*));
     if(!clientes){
         fprintf(stderr, "Error al obtener los clientes de un nodo Hash");

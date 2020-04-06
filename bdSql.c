@@ -167,18 +167,18 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
                 numPerQuery = numPerH-numPerQuery;
                 numErrQuery = numErrH-numErrQuery;
                 bytesQuery = bytesH-bytesQuery;
-
+                //Retardo del intervalo
                 if(numPaqQuery == 0.0)
                     retQuery = retH-retQuery;
                 else
                     retQuery = (double)((retH-retQuery)/numPaqQuery);
-
+                // Porcentaje de perdidas global
                 if((numPaqH+numPerH) == 0)
                     porH = 0.0;
                 else{
                     porH = ((double)numPerH/(numPaqH+numPerH))*100;
                 }
-                    
+                // Porcentaje de perdidas del intervalo
                 if((numPerQuery+numPaqQuery) == 0)
                     porQ = 0.0;
                 else{
@@ -210,7 +210,6 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
         lista = nodoGetInfo(aux);
         size = list_size(lista);
         clientes = list_getClientes(lista);
-
         for(i = 0; i < size; i++) {
 
             sprintf(sql, "INSERT INTO Igmp VALUES(\'%s\', %.f, \'%s\')",
@@ -221,10 +220,9 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
                 free(clientes);     
                 return;
             }
-            free(clientes);
             memset(sql, 0, sizeof(sql));
         }
-        
+        free(clientes);
         pn = getNext(pn);
     }
     

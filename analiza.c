@@ -308,7 +308,7 @@ int leer_paquete(const struct pcap_pkthdr *header, const u_char *packet, TablaHa
     /* Nos aseguramos que sea un paquete IP */
     eth_header = (struct ether_header *) packet;
     if (ntohs(eth_header->ether_type) != ETHERTYPE_IP) {
-        printf("No es un paquete IP. Saltando...\n\n");
+        //printf("No es un paquete IP. Saltando...\n\n");
         return -1;
     }
 
