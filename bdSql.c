@@ -146,7 +146,7 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
                     numPerQuery = 0;
                     numErrQuery = 0;
                     bytesQuery = 0;
-                    var = calculaVarianza(getNumRecibidos(aux), 0, getRetardo(aux), 0.0, getRetardoCuadrado(aux), 0.0);
+                    var = 0.0;
                 }
                 else {
                     retQuery = strtod(row[0], &eptr);
@@ -163,15 +163,17 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
                 numErrH = getNumIgmpErr(aux);
                 bytesH = getNumBytes(aux);
 
+                //Retardo del intervalo
+                if(numPaqQuery == 0 || numPaqH==numPaqQuery) // == 0 si es el 1er bach, == si se ha dejado de recibir
+                    retQuery = 0.0;
+                else
+                    retQuery = (double)((retH-retQuery)/(numPaqH-numPaqQuery));
+
                 numPaqQuery = numPaqH-numPaqQuery;
                 numPerQuery = numPerH-numPerQuery;
                 numErrQuery = numErrH-numErrQuery;
                 bytesQuery = bytesH-bytesQuery;
-                //Retardo del intervalo
-                if(numPaqQuery == 0.0)
-                    retQuery = retH-retQuery;
-                else
-                    retQuery = (double)((retH-retQuery)/numPaqQuery);
+                
                 // Porcentaje de perdidas global
                 if((numPaqH+numPerH) == 0)
                     porH = 0.0;
