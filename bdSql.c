@@ -99,7 +99,7 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
     int rc = 0;
     int numPaqH = 0, numPerH = 0, numErrH = 0,bytesH = 0;
     int numPaqQuery = 0,numPerQuery = 0,numErrQuery = 0,bytesQuery = 0;
-    double retQuery, retCQuery, var = 0.0; 
+    double retQuery, retCQuery, through, var = 0.0; 
     double retH = 0.0;
     double porH, porQ = 1.0;
     double mos = 0.0;
@@ -173,6 +173,7 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
                 numPerQuery = numPerH-numPerQuery;
                 numErrQuery = numErrH-numErrQuery;
                 bytesQuery = bytesH-bytesQuery;
+                through = (double)((bytesQuery*8)/10);
                 
                 // Porcentaje de perdidas global
                 if((numPaqH+numPerH) == 0)
@@ -188,9 +189,9 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
                 }
                 mos = calculaMOS(porQ);
                 mysql_free_result(result);
-				sprintf(sql, "INSERT INTO Canales(Ip,Tiempo,NumPaq,NumPaqDif, NumPer,NumPerDif, PorPer,PorPerDif, Ret,RetDif,RetC,NumErr,NumErrDif,Bytes,BytesDiff,Jitter,Mos,Tipo) VALUES(\'%s\', %.f, %d, %d, %d, %d, %.f, %.f, %.f, %.f, %.f, %d, %d, %d, %d, %.f, %.1f, %d)",
+				sprintf(sql, "INSERT INTO Canales(Ip,Tiempo,NumPaq,NumPaqDif, NumPer,NumPerDif, PorPer,PorPerDif, Ret,RetDif,RetC,NumErr,NumErrDif,Bytes,Throughput,Jitter,Mos,Tipo) VALUES(\'%s\', %.f, %d, %d, %d, %d, %.f, %.f, %.f, %.f, %.f, %d, %d, %d, %.f, %.f, %.1f, %d)",
                     getClave(aux), getLlegadaAnterior(aux)/1000000,  numPaqH, numPaqQuery, numPerH, numPerQuery, porH, porQ,
-                    retH, retQuery, getRetardoCuadrado(aux), numErrH, numErrQuery, bytesH, bytesQuery, var, mos, getTipo(aux));
+                    retH, retQuery, getRetardoCuadrado(aux), numErrH, numErrQuery, bytesH, through, var, mos, getTipo(aux));
                 rc = mysql_query(db, sql);
                 if (rc != 0 ) {
                     fprintf(stderr, "SQL error en Canales: %s\n", mysql_error(db));      
