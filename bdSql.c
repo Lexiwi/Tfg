@@ -173,7 +173,7 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
                 numPerQuery = numPerH-numPerQuery;
                 numErrQuery = numErrH-numErrQuery;
                 bytesQuery = bytesH-bytesQuery;
-                through = (double)((bytesQuery*8)/10);
+                through = (((double)bytesQuery)*8)/10000000;
                 
                 // Porcentaje de perdidas global
                 if((numPaqH+numPerH) == 0)
@@ -188,8 +188,10 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
                     porQ = ((double)numPerQuery/(numPerQuery+numPaqQuery))*100;
                 }
                 mos = calculaMOS(porQ);
+                if (numPaqQuery == 0)
+                    mos = 1;
                 mysql_free_result(result);
-				sprintf(sql, "INSERT INTO Canales(Ip,Tiempo,NumPaq,NumPaqDif, NumPer,NumPerDif, PorPer,PorPerDif, Ret,RetDif,RetC,NumErr,NumErrDif,Bytes,Throughput,Jitter,Mos,Tipo) VALUES(\'%s\', %.f, %d, %d, %d, %d, %.f, %.f, %.f, %.f, %.f, %d, %d, %d, %.f, %.f, %.1f, %d)",
+				sprintf(sql, "INSERT INTO Canales(Ip,Tiempo,NumPaq,NumPaqDif, NumPer,NumPerDif, PorPer,PorPerDif, Ret,RetDif,RetC,NumErr,NumErrDif,Bytes,Throughput,Jitter,Mos,Tipo) VALUES(\'%s\', %.f, %d, %d, %d, %d, %.f, %.f, %.f, %.f, %.f, %d, %d, %d, %.3f, %.f, %.1f, %d)",
                     getClave(aux), getLlegadaAnterior(aux)/1000000,  numPaqH, numPaqQuery, numPerH, numPerQuery, porH, porQ,
                     retH, retQuery, getRetardoCuadrado(aux), numErrH, numErrQuery, bytesH, through, var, mos, getTipo(aux));
                 rc = mysql_query(db, sql);
