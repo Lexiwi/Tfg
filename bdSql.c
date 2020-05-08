@@ -125,82 +125,85 @@ void volcarTabla(MYSQL *db, TablaHash* tabla, ListControl* igmp, Ruido* ruido) {
 
 			aux = tabla->nodos[i];
 			while(aux != NULL){
+                if(list_isEmpty(nodoGetInfo(aux)) == 0){
+                    sprintf(query, "SELECT Ret,RetC,NumPaq,NumPer,NumErr,Bytes FROM Canales WHERE Ip=\'%s\' ORDER BY id DESC LIMIT 1", getClave(aux));
+                    rc = mysql_query(db, query);
+                    if (rc != 0 ) {
+                        fprintf(stderr, "SQL error: %s\n", mysql_error(db));       
+                        return;
+                    }
+                    result = mysql_store_result(db);
+                    if (!result) {
+                        fprintf(stderr, "SQL error: %s\n", mysql_error(db));
+                        mysql_free_result(result);   
+                        return;
+                    }
+                    row = mysql_fetch_row(result);
+                    if(!row){
+                        retQuery = 0.0;
+                        retCQuery = 0.0;
+                        numPaqQuery = 0;
+                        numPerQuery = 0;
+                        numErrQuery = 0;
+                        bytesQuery = 0;
+                        var = 0.0;
+                    }
+                    else {
+                        retQuery = strtod(row[0], &eptr);
+                        retCQuery = strtod(row[1], &eptr);
+                        numPaqQuery = atoi(row[2]);
+                        numPerQuery = atoi(row[3]);
+                        numErrQuery = atoi(row[4]);
+                        bytesQuery = atoi(row[5]);
+                        var = calculaVarianza(getNumRecibidos(aux), numPaqQuery, getRetardo(aux), retQuery, getRetardoCuadrado(aux), retCQuery);
+                    }
+                    retH = getRetardo(aux);
+                    numPaqH = getNumRecibidos(aux);
+                    numPerH = getNumPerdidos(aux);
+                    numErrH = getNumIgmpErr(aux);
+                    bytesH = getNumBytes(aux);
 
-                sprintf(query, "SELECT Ret,RetC,NumPaq,NumPer,NumErr,Bytes FROM Canales WHERE Ip=\'%s\' ORDER BY id DESC LIMIT 1", getClave(aux));
-                rc = mysql_query(db, query);
-                if (rc != 0 ) {
-                    fprintf(stderr, "SQL error: %s\n", mysql_error(db));       
-                    return;
-                }
-                result = mysql_store_result(db);
-                if (!result) {
-                    fprintf(stderr, "SQL error: %s\n", mysql_error(db));
-                    mysql_free_result(result);   
-                    return;
-                }
-                row = mysql_fetch_row(result);
-                if(!row){
-                    retQuery = 0.0;
-                    retCQuery = 0.0;
-                    numPaqQuery = 0;
-                    numPerQuery = 0;
-                    numErrQuery = 0;
-                    bytesQuery = 0;
-                    var = 0.0;
-                }
-                else {
-                    retQuery = strtod(row[0], &eptr);
-                    retCQuery = strtod(row[1], &eptr);
-                    numPaqQuery = atoi(row[2]);
-                    numPerQuery = atoi(row[3]);
-                    numErrQuery = atoi(row[4]);
-                    bytesQuery = atoi(row[5]);
-                    var = calculaVarianza(getNumRecibidos(aux), numPaqQuery, getRetardo(aux), retQuery, getRetardoCuadrado(aux), retCQuery);
-                }
-                retH = getRetardo(aux);
-                numPaqH = getNumRecibidos(aux);
-                numPerH = getNumPerdidos(aux);
-                numErrH = getNumIgmpErr(aux);
-                bytesH = getNumBytes(aux);
+                    //Retardo del intervalo
+                    if(numPaqQuery == 0 || numPaqH==numPaqQuery) // == 0 si es el 1er bach, == si se ha dejado de recibir
+                        retQuery = 0.0;
+                    else
+                        retQuery = (double)((retH-retQuery)/(numPaqH-numPaqQuery));
 
-                //Retardo del intervalo
-                if(numPaqQuery == 0 || numPaqH==numPaqQuery) // == 0 si es el 1er bach, == si se ha dejado de recibir
-                    retQuery = 0.0;
-                else
-                    retQuery = (double)((retH-retQuery)/(numPaqH-numPaqQuery));
-
-                numPaqQuery = numPaqH-numPaqQuery;
-                numPerQuery = numPerH-numPerQuery;
-                numErrQuery = numErrH-numErrQuery;
-                bytesQuery = bytesH-bytesQuery;
-                through = (((double)bytesQuery)*8)/10000000;
-                
-                // Porcentaje de perdidas global
-                if((numPaqH+numPerH) == 0)
-                    porH = 0.0;
-                else{
-                    porH = ((double)numPerH/(numPaqH+numPerH))*100;
+                    numPaqQuery = numPaqH-numPaqQuery;
+                    numPerQuery = numPerH-numPerQuery;
+                    numErrQuery = numErrH-numErrQuery;
+                    bytesQuery = bytesH-bytesQuery;
+                    through = (((double)bytesQuery)*8)/1000000;
+                    
+                    // Porcentaje de perdidas global
+                    if((numPaqH+numPerH) == 0)
+                        porH = 0.0;
+                    else{
+                        porH = ((double)numPerH/(numPaqH+numPerH))*100;
+                    }
+                    // Porcentaje de perdidas del intervalo
+                    if((numPerQuery+numPaqQuery) == 0)
+                        porQ = 0.0;
+                    else{
+                        porQ = ((double)numPerQuery/(numPerQuery+numPaqQuery))*100;
+                    }
+                    
+                    if (numPaqQuery == 0)
+                        mos = 1;
+                    else
+                        mos = calculaMOS(porQ);
+                    mysql_free_result(result);
+                    sprintf(sql, "INSERT INTO Canales(Ip,Tiempo,NumPaq,NumPaqDif, NumPer,NumPerDif, PorPer,PorPerDif, Ret,RetDif,RetC,NumErr,NumErrDif,Bytes,Throughput,Jitter,Mos,Tipo) VALUES(\'%s\', %.f, %d, %d, %d, %d, %.f, %.f, %.f, %.f, %.f, %d, %d, %d, %.3f, %.f, %.1f, %d)",
+                        getClave(aux), getLlegadaAnterior(aux)/1000000,  numPaqH, numPaqQuery, numPerH, numPerQuery, porH, porQ,
+                        retH, retQuery, getRetardoCuadrado(aux), numErrH, numErrQuery, bytesH, through, var, mos, getTipo(aux));
+                    rc = mysql_query(db, sql);
+                    if (rc != 0 ) {
+                        fprintf(stderr, "SQL error en Canales: %s\n", mysql_error(db));      
+                        return;
+                    }
+                    memset(sql, 0, sizeof(sql));
+                    memset(query, 0, sizeof(query));
                 }
-                // Porcentaje de perdidas del intervalo
-                if((numPerQuery+numPaqQuery) == 0)
-                    porQ = 0.0;
-                else{
-                    porQ = ((double)numPerQuery/(numPerQuery+numPaqQuery))*100;
-                }
-                mos = calculaMOS(porQ);
-                if (numPaqQuery == 0)
-                    mos = 1;
-                mysql_free_result(result);
-				sprintf(sql, "INSERT INTO Canales(Ip,Tiempo,NumPaq,NumPaqDif, NumPer,NumPerDif, PorPer,PorPerDif, Ret,RetDif,RetC,NumErr,NumErrDif,Bytes,Throughput,Jitter,Mos,Tipo) VALUES(\'%s\', %.f, %d, %d, %d, %d, %.f, %.f, %.f, %.f, %.f, %d, %d, %d, %.3f, %.f, %.1f, %d)",
-                    getClave(aux), getLlegadaAnterior(aux)/1000000,  numPaqH, numPaqQuery, numPerH, numPerQuery, porH, porQ,
-                    retH, retQuery, getRetardoCuadrado(aux), numErrH, numErrQuery, bytesH, through, var, mos, getTipo(aux));
-                rc = mysql_query(db, sql);
-                if (rc != 0 ) {
-                    fprintf(stderr, "SQL error en Canales: %s\n", mysql_error(db));      
-                    return;
-                }
-                memset(sql, 0, sizeof(sql));
-                memset(query, 0, sizeof(query));
 				aux = getSiguiente(aux);
 			}
 		}

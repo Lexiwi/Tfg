@@ -51,12 +51,12 @@
           {
             "color": "#73BF69",
             "tooltip": "FOX",
-            "value": "11"
+            "value": "9"
           },
           {
             "color": "#B877D9",
             "tooltip": "TNT",
-            "value": "9"
+            "value": "11"
           },
           {
             "color": "#1F60C4",
@@ -2211,5 +2211,5 @@
   "variables": {
     "list": []
   },
-  "version": 97
+  "version": 98
 }

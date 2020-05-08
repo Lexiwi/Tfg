@@ -133,9 +133,10 @@ void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaH
 
     const u_char *igmp_header;
     double ret = 0.0;
-    char clave[16], cliente[16];
+    char clave[16], cliente[16], leave[16];
     const struct sniff_ip *ip;
     const u_char *ip_header;
+    const u_char *ip_leave;
     int ip_header_length;
 
     NodoHash* nodo = NULL;
@@ -174,11 +175,12 @@ void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaH
             setTiempo(node, ret);
             setInfo(node, 1);
         }
-   
     }
     // IGMP Leave Group
     else if( ((*igmp_header) & 0xFF) == 0x17 ) {
-        nodo = buscarNodoHash(tabla, clave);
+        ip_leave = igmp_header + 4;
+        sprintf(leave, "%d.%d.%d.%d",ip_leave[0],ip_leave[1],ip_leave[2],ip_leave[3]);
+        nodo = buscarNodoHash(tabla, leave);
         //Si obtenemos un leave y el arbol esta registrado, comprobamos el cliente
         if (nodo != NULL) {
             lista = nodoGetInfo(nodo);
@@ -186,7 +188,7 @@ void obtener_igmp(const struct pcap_pkthdr *header, const u_char *packet, TablaH
             // Si no quedan clientes en el arbol, indicamos que 
             // no esperamos paquetes de el
             if(list_isEmpty(lista) == 1){
-                node = getNode(igmp, clave);
+                node = getNode(igmp, leave);
                 setTiempo(node, ret);
                 setInfo(node, 0);
             }
