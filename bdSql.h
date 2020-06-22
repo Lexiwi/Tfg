@@ -17,8 +17,8 @@
 #include <math.h>
 
 #define SERVIDOR "localhost"
-#define USUARIO "lexo"
-#define PASS "b453_TFG_d4t05"
+#define USUARIO "INSERT_USER"
+#define PASS "INSERT_PASSWORD"
 #define TABLA "analisis"
 
 #define DROP_TABLES "DROP TABLE IF EXISTS Canales, Igmp, Ruido"
